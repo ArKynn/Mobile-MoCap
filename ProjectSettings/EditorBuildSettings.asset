@@ -5,10 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/3DSampleScene.unity
+    guid: 6fa8249fca1e9bb4cb86a4df8eb0bd08
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 2c2bb2f4a7714124d86e4c10a43b5e30, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 55efc30c0925cd64383cf0cb0d387b42, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 5d5e9ffd1ba30394989e775b56653c3a, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
