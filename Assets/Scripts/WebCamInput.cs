@@ -15,35 +15,58 @@ public class WebCamInput : MonoBehaviour
     
     private WebCamDevice[] _devices;
     private int _currentDevice;
+    private WebCamDevice CurrentDevice => _devices[_currentDevice];
+    
+    private Resolution _webcamResolution;
 
     void Start()
     {
-        InitializeWebcam();        
-
         inputRT = new RenderTexture((int)webCamResolution.x, (int)webCamResolution.y, 0);
+        
+        InitializeWebcam();        
     }
 
     void InitializeWebcam()
     {
         _devices = WebCamTexture.devices;
-        
-        webCamTexture = new WebCamTexture(_devices[_currentDevice].name);
-        webCamTexture.Play();
+        webCamTexture = new WebCamTexture();
+        UpdateWebcam();
     }
 
     public void NextWebcamDevice()
     {
-        webCamTexture.Stop();
         if (_currentDevice + 1 <= _devices.Length - 1)
         {
             _currentDevice++;
         }
         else _currentDevice = 0;
         
-        webCamTexture.deviceName = _devices[_currentDevice].name;
+        UpdateWebcam();
+    }
+
+    void UpdateWebcam()
+    {
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+        UpdateWebcamWindows(CurrentDevice.name);
+#elif UNITY_ANDROID
+        UpdateWebcamAndroid(CurrentDevice.name, CurrentDevice.availableResolutions[0]);
+#endif
+    }
+
+    void UpdateWebcamAndroid(string name, Resolution resolution)
+    {
+        webCamTexture.Stop();
+        webCamTexture.deviceName = name;
+        webCamTexture.width = resolution.width;
+        webCamTexture.height = resolution.height;
         webCamTexture.Play();
-        
-        print ("Webcam Device: " + webCamTexture.deviceName);
+    }
+
+    void UpdateWebcamWindows(string name)
+    {
+        webCamTexture.Stop();
+        webCamTexture.deviceName = name;
+        webCamTexture.Play();
     }
 
     void Update()
