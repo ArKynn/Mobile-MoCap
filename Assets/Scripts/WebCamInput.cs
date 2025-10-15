@@ -5,33 +5,49 @@ public class WebCamInput : MonoBehaviour
 {
     [SerializeField] string webCamName;
     [SerializeField] Vector2 webCamResolution = new Vector2(1920, 1080);
-    [SerializeField] Texture staticInput;
     [SerializeField] RawImage image;
 
     // Provide input image Texture.
-    public Texture inputImageTexture{
-        get{
-            if(staticInput != null) return staticInput;
-            return inputRT;
-        }
-    }
+    public Texture inputImageTexture => inputRT;
 
     WebCamTexture webCamTexture;
     public RenderTexture inputRT;
+    
+    private WebCamDevice[] _devices;
+    private int _currentDevice;
 
     void Start()
     {
-        if(staticInput == null){
-            webCamTexture = new WebCamTexture();
-            webCamTexture.Play();
-        }
+        InitializeWebcam();        
 
         inputRT = new RenderTexture((int)webCamResolution.x, (int)webCamResolution.y, 0);
     }
 
+    void InitializeWebcam()
+    {
+        _devices = WebCamTexture.devices;
+        
+        webCamTexture = new WebCamTexture(_devices[_currentDevice].name);
+        webCamTexture.Play();
+    }
+
+    public void NextWebcamDevice()
+    {
+        webCamTexture.Stop();
+        if (_currentDevice + 1 <= _devices.Length - 1)
+        {
+            _currentDevice++;
+        }
+        else _currentDevice = 0;
+        
+        webCamTexture.deviceName = _devices[_currentDevice].name;
+        webCamTexture.Play();
+        
+        print ("Webcam Device: " + webCamTexture.deviceName);
+    }
+
     void Update()
     {
-        if(staticInput != null) return;
         if(!webCamTexture.didUpdateThisFrame) return;
 
         var aspect1 = (float)webCamTexture.width / webCamTexture.height;
