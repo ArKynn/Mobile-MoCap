@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class WebCamInput : MonoBehaviour
@@ -8,16 +9,20 @@ public class WebCamInput : MonoBehaviour
     [SerializeField] RawImage image;
 
     // Provide input image Texture.
-    public Texture inputImageTexture => inputRT;
+    public Texture InputImageTexture => inputRT;
 
-    WebCamTexture webCamTexture;
+    private WebCamTexture _webCamTexture;
+    private Texture2D _rotatedTexture;
     public RenderTexture inputRT;
     
     private WebCamDevice[] _devices;
     private int _currentDevice;
     private WebCamDevice CurrentDevice => _devices[_currentDevice];
-    
-    private Resolution _webcamResolution;
+
+    private void Awake()
+    {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+    }
 
     void Start()
     {
@@ -29,7 +34,7 @@ public class WebCamInput : MonoBehaviour
     void InitializeWebcam()
     {
         _devices = WebCamTexture.devices;
-        webCamTexture = new WebCamTexture();
+        _webCamTexture = new WebCamTexture();
         UpdateWebcam();
     }
 
@@ -43,45 +48,23 @@ public class WebCamInput : MonoBehaviour
         
         UpdateWebcam();
     }
-
+    
     void UpdateWebcam()
     {
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
-        UpdateWebcamWindows(CurrentDevice.name);
-#elif UNITY_ANDROID
-        UpdateWebcamAndroid(CurrentDevice.name, CurrentDevice.availableResolutions[0]);
-#endif
-    }
-
-    void UpdateWebcamAndroid(string name, Resolution resolution)
-    {
-        webCamTexture.Stop();
-        webCamTexture.deviceName = name;
-        webCamTexture.width = resolution.width;
-        webCamTexture.height = resolution.height;
-        webCamTexture.Play();
-    }
-
-    void UpdateWebcamWindows(string name)
-    {
-        webCamTexture.Stop();
-        webCamTexture.deviceName = name;
-        webCamTexture.Play();
+        _webCamTexture.Stop();
+        _webCamTexture.deviceName = CurrentDevice.name;
+        _webCamTexture.requestedWidth = inputRT.width;
+        _webCamTexture.requestedHeight = inputRT.height;
+        _webCamTexture.Play();
     }
 
     void Update()
     {
-        if(!webCamTexture.didUpdateThisFrame) return;
+        if(!_webCamTexture.didUpdateThisFrame) return;
 
-        var aspect1 = (float)webCamTexture.width / webCamTexture.height;
-        var aspect2 = (float)inputRT.width / inputRT.height;
-        var aspectGap = aspect2 / aspect1;
-
-        var vMirrored = webCamTexture.videoVerticallyMirrored;
-        var scale = new Vector2(aspectGap, vMirrored ? -1 : 1);
-        var offset = new Vector2((1 - aspectGap) / 2, vMirrored ? 1 : 0);
-
-        Graphics.Blit(webCamTexture, inputRT, scale, offset);
+        //_rotatedTexture = RotateTexture(_webCamTexture, false);
+        
+        Graphics.Blit(_webCamTexture, inputRT); 
     }
 
     void LateUpdate()
@@ -90,7 +73,34 @@ public class WebCamInput : MonoBehaviour
     }
 
     void OnDestroy(){
-        if (webCamTexture != null) Destroy(webCamTexture);
+        if (_webCamTexture != null) Destroy(_webCamTexture);
         if (inputRT != null) Destroy(inputRT);
+    }
+
+    
+    //Code by KwahuNashoba (https://discussions.unity.com/t/rotate-the-contents-of-a-texture/136686)
+    Texture2D RotateTexture(WebCamTexture originalTexture, bool clockwise)
+    {
+        Color32[] original = originalTexture.GetPixels32();
+        Color32[] rotated = new Color32[original.Length];
+        int w = originalTexture.width;
+        int h = originalTexture.height;
+
+        int iRotated, iOriginal;
+
+        for (int j = 0; j < h; ++j)
+        {
+            for (int i = 0; i < w; ++i)
+            {
+                iRotated = (i + 1) * h - j - 1;
+                iOriginal = clockwise ? original.Length - 1 - (j * w + i) : j * w + i;
+                rotated[iRotated] = original[iOriginal];
+            }
+        }
+
+        Texture2D rotatedTexture = new Texture2D(h, w);
+        rotatedTexture.SetPixels32(rotated);
+        rotatedTexture.Apply();
+        return rotatedTexture;
     }
 }
