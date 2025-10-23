@@ -78,6 +78,6 @@ public class PoseVisuallizer3D : MonoBehaviour
 
     void OnApplicationQuit(){
         // Must call Dispose method when no longer in use.
-        detecter.Dispose();
+        detecter?.Dispose();
     }
 }

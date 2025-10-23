@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 public static class BodyLandmarks
 {
     // All body landmarks detected by Neural Network model
     // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
-    public static List<string> Landmarks = new (){
+    public static readonly List<string> Landmarks = new (){
         "0 - nose",
         "1 - left eye (inner)",
         "2 - left eye (center)",
@@ -42,42 +43,14 @@ public static class BodyLandmarks
     
     // Landmark connections
     // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
-    public static readonly Dictionary<int, int> LandmarkPairs = new ()
-    {
-        { 0, 1 },
-        { 1, 2 },
-        { 2, 3 },
-        { 3, 7 },
-        { 0, 4 },
-        { 4, 5 },
-        { 5, 6 },
-        { 6, 8 },
-        { 9, 10 },
-        { 11, 12 },
-        { 11, 13 },
-        { 13, 15 },
-        { 15, 17 },
-        { 17, 19 },
-        { 19, 15 },
-        { 15, 21 },
-        { 12, 14 },
-        { 14, 16 },
-        { 16, 18 },
-        { 18, 20 },
-        { 20, 16 },
-        { 16, 22 },
-        { 11, 23 },
-        { 12, 24 },
-        { 23, 24 },
-        { 23, 25 },
-        { 25, 27 },
-        { 27, 29 },
-        { 29, 31 },
-        { 31, 27 },
-        { 24, 26 },
-        { 26, 28 },
-        { 28, 30 },
-        { 30, 32 },
-        { 32, 28 },
+
+    public static readonly List<Vector2> LandmarkPairs = new List<Vector2>{
+        new Vector2(0, 1), new Vector2(1, 2), new Vector2(2, 3), new Vector2(3, 7), new Vector2(0, 4), 
+        new Vector2(4, 5), new Vector2(5, 6), new Vector2(6, 8), new Vector2(9, 10), new Vector2(11, 12), 
+        new Vector2(11, 13), new Vector2(13, 15), new Vector2(15, 17), new Vector2(17, 19), new Vector2(19, 15), 
+        new Vector2(15, 21), new Vector2(12, 14), new Vector2(14, 16), new Vector2(16, 18), new Vector2(18, 20), 
+        new Vector2(20, 16), new Vector2(16, 22), new Vector2(11, 23), new Vector2(12, 24), new Vector2(23, 24), 
+        new Vector2(23, 25), new Vector2(25, 27), new Vector2(27, 29), new Vector2(29, 31), new Vector2(31, 27), 
+        new Vector2(24, 26), new Vector2(26, 28), new Vector2(28, 30), new Vector2(30, 32), new Vector2(32, 28)
     };
 }

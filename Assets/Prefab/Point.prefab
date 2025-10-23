@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4092305762995470823}
   - component: {fileID: 3833867022891702198}
   - component: {fileID: 8213536189459320388}
-  - component: {fileID: 4224574338932897279}
   - component: {fileID: 5767244866379777137}
   m_Layer: 0
   m_Name: Point
@@ -68,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 189209bca801f3c4b8d80259f38447af, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -91,27 +90,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &4224574338932897279
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2718038257496206811}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5767244866379777137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,4 +107,10 @@ MonoBehaviour:
     rgba: 4278241330
   blockedViewColor:
     serializedVersion: 2
-    rgba: 4278203080
+    rgba: 13000
+  inViewLineColor:
+    serializedVersion: 2
+    rgba: 4278219036
+  blockedViewLineColor:
+    serializedVersion: 2
+    rgba: 8841

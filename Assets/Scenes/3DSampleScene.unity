@@ -748,8 +748,9 @@ MonoBehaviour:
   mainCamera: {fileID: 765897653}
   webCamInput: {fileID: 636196908}
   humanExistThreshold: 0.5
-  useWorldCoords: 0
+  useWorldCoords: 1
   landmarkPrefab: {fileID: 2718038257496206811, guid: 8f3a381bae4b7b3458099f4e0eccca38, type: 3}
+  lineRendererPrefab: {fileID: 7527269271804676192, guid: ff1953a3034d0094fbd7960fc7ba642c, type: 3}
 --- !u!1 &1428283411
 GameObject:
   m_ObjectHideFlags: 0
