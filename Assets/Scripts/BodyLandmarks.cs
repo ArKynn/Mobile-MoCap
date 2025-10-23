@@ -42,7 +42,7 @@ public static class BodyLandmarks
     
     // Landmark connections
     // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
-    static readonly Dictionary<int, int> LandmarkPairs = new Dictionary<int, int>()
+    public static readonly Dictionary<int, int> LandmarkPairs = new ()
     {
         { 0, 1 },
         { 1, 2 },
