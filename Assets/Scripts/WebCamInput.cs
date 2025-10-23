@@ -1,19 +1,22 @@
 ﻿using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class WebCamInput : MonoBehaviour
 {
     [SerializeField] string webCamName;
-    [SerializeField] Vector2 webCamResolution = new Vector2(1920, 1080);
+    [SerializeField] Vector2 webCamResolution = new Vector2(1080, 1920);
     [SerializeField] RawImage image;
 
     // Provide input image Texture.
     public Texture InputImageTexture => inputRT;
 
     private WebCamTexture _webCamTexture;
-    private Texture2D _rotatedTexture;
+    private Texture2D _tempTexture;
     public RenderTexture inputRT;
+    [FormerlySerializedAs("visualizerInputRT")] public RenderTexture imageInputRT;
     
     private WebCamDevice[] _devices;
     private int _currentDevice;
@@ -22,13 +25,15 @@ public class WebCamInput : MonoBehaviour
     private void Awake()
     {
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        Screen.orientation = ScreenOrientation.Portrait;
     }
 
     void Start()
     {
         inputRT = new RenderTexture((int)webCamResolution.x, (int)webCamResolution.y, 0);
-        
-        InitializeWebcam();        
+        imageInputRT = new RenderTexture((int)webCamResolution.y, (int)webCamResolution.x, 0);
+        InitializeWebcam();   
+        _tempTexture = new Texture2D(_webCamTexture.width, _webCamTexture.height, TextureFormat.RGBA32, false);
     }
 
     void InitializeWebcam()
@@ -62,45 +67,57 @@ public class WebCamInput : MonoBehaviour
     {
         if(!_webCamTexture.didUpdateThisFrame) return;
 
-        //_rotatedTexture = RotateTexture(_webCamTexture, false);
+        _tempTexture.SetPixels(_webCamTexture.GetPixels());
+        _tempTexture.Apply();
         
-        Graphics.Blit(_webCamTexture, inputRT); 
-    }
-
-    void LateUpdate()
-    {
-        image.texture = inputRT;
+        //_tempTexture = RotateTexture(_tempTexture, false);
+        RotateImage(_tempTexture, 90f);
+        
+        Graphics.Blit(_webCamTexture, imageInputRT);
+        Graphics.Blit(_tempTexture, inputRT); 
+        
+        image.texture = imageInputRT;
     }
 
     void OnDestroy(){
         if (_webCamTexture != null) Destroy(_webCamTexture);
         if (inputRT != null) Destroy(inputRT);
     }
-
     
-    //Code by KwahuNashoba (https://discussions.unity.com/t/rotate-the-contents-of-a-texture/136686)
-    Texture2D RotateTexture(WebCamTexture originalTexture, bool clockwise)
+    public static void RotateImage(Texture2D tex, float angleDegrees)
     {
-        Color32[] original = originalTexture.GetPixels32();
-        Color32[] rotated = new Color32[original.Length];
-        int w = originalTexture.width;
-        int h = originalTexture.height;
+        int width = tex.width;
+        int height = tex.height;
+        float halfHeight = height * 0.5f;
+        float halfWidth = width * 0.5f;
 
-        int iRotated, iOriginal;
+        var texels = tex.GetRawTextureData<Color32>();
+        var copy = System.Buffers.ArrayPool<Color32>.Shared.Rent(texels.Length);
+        Unity.Collections.NativeArray<Color32>.Copy(texels, copy, texels.Length);
 
-        for (int j = 0; j < h; ++j)
+        float phi = Mathf.Deg2Rad * angleDegrees;
+        float cosPhi = Mathf.Cos(phi);
+        float sinPhi = Mathf.Sin(phi);
+
+        int address = 0;
+        for (int newY = 0; newY < height; newY++)
         {
-            for (int i = 0; i < w; ++i)
+            for (int newX = 0; newX < width; newX++)
             {
-                iRotated = (i + 1) * h - j - 1;
-                iOriginal = clockwise ? original.Length - 1 - (j * w + i) : j * w + i;
-                rotated[iRotated] = original[iOriginal];
+                float cX = newX - halfWidth;
+                float cY = newY - halfHeight;
+                int oldX = Mathf.RoundToInt(cosPhi * cX + sinPhi * cY + halfWidth);
+                int oldY = Mathf.RoundToInt(-sinPhi * cX + cosPhi * cY + halfHeight);
+                bool InsideImageBounds = (oldX > -1) & (oldX < width)
+                                                     & (oldY > -1) & (oldY < height);
+
+                texels[address++] = InsideImageBounds ? copy[oldY * width + oldX] : default;
             }
         }
 
-        Texture2D rotatedTexture = new Texture2D(h, w);
-        rotatedTexture.SetPixels32(rotated);
-        rotatedTexture.Apply();
-        return rotatedTexture;
+        // No need to reinitialize or SetPixels - data is already in-place.
+        tex.Apply(true);
+
+        System.Buffers.ArrayPool<Color32>.Shared.Return(copy);
     }
 }

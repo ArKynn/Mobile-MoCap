@@ -23,7 +23,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
         InitializePoints();
     }
 
-    void Update(){
+    void LateUpdate(){
         // Predict pose by neural network model.
         detecter.ProcessImage(webCamInput.inputRT);
 
