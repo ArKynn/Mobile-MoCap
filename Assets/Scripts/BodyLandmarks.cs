@@ -39,4 +39,45 @@ public static class BodyLandmarks
         "31 - left foot index",
         "32 - right foot index"
     };
+    
+    // Landmark connections
+    // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
+    static readonly Dictionary<int, int> LandmarkPairs = new Dictionary<int, int>()
+    {
+        { 0, 1 },
+        { 1, 2 },
+        { 2, 3 },
+        { 3, 7 },
+        { 0, 4 },
+        { 4, 5 },
+        { 5, 6 },
+        { 6, 8 },
+        { 9, 10 },
+        { 11, 12 },
+        { 11, 13 },
+        { 13, 15 },
+        { 15, 17 },
+        { 17, 19 },
+        { 19, 15 },
+        { 15, 21 },
+        { 12, 14 },
+        { 14, 16 },
+        { 16, 18 },
+        { 18, 20 },
+        { 20, 16 },
+        { 16, 22 },
+        { 11, 23 },
+        { 12, 24 },
+        { 23, 24 },
+        { 23, 25 },
+        { 25, 27 },
+        { 27, 29 },
+        { 29, 31 },
+        { 31, 27 },
+        { 24, 26 },
+        { 26, 28 },
+        { 28, 30 },
+        { 30, 32 },
+        { 32, 28 },
+    };
 }
