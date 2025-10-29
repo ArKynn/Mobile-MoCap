@@ -28,15 +28,14 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.barracuda": {
-      "version": "3.0.0",
+      "version": "file:com.unity.barracuda@82bcfb51cf28",
       "depth": 0,
-      "source": "registry",
+      "source": "embedded",
       "dependencies": {
         "com.unity.burst": "1.6.0",
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
+      }
     },
     "com.unity.burst": {
       "version": "1.8.24",
@@ -267,32 +266,29 @@
       "url": "https://packages.unity.com"
     },
     "jp.ikep.mediapipe.blazepose": {
-      "version": "https://github.com/creativeIKEP/BlazePoseBarracuda.git?path=Packages/BlazePoseBarracuda#v1.3.0",
+      "version": "file:jp.ikep.mediapipe.blazepose@56f198a83938",
       "depth": 0,
-      "source": "git",
+      "source": "embedded",
       "dependencies": {
         "jp.ikep.mediapipe.posedetection": "1.0.1",
         "jp.ikep.mediapipe.poselandmark": "1.1.1"
-      },
-      "hash": "809c62bd49f7783f84a36e75a992c5226908cb19"
+      }
     },
     "jp.ikep.mediapipe.posedetection": {
-      "version": "https://github.com/creativeIKEP/PoseDetectionBarracuda.git?path=Packages/PoseDetectionBarracuda#v1.0.1",
+      "version": "file:jp.ikep.mediapipe.posedetection@da58cc9844f3",
       "depth": 0,
-      "source": "git",
+      "source": "embedded",
       "dependencies": {
         "com.unity.barracuda": "2.0.0-pre.3"
-      },
-      "hash": "21c7f9864253dafd02763053910f0b74d89775b0"
+      }
     },
     "jp.ikep.mediapipe.poselandmark": {
-      "version": "https://github.com/creativeIKEP/PoseLandmarkBarracuda.git?path=Packages/PoseLandmarkBarracuda",
+      "version": "file:jp.ikep.mediapipe.poselandmark@77360cae9d39",
       "depth": 0,
-      "source": "git",
+      "source": "embedded",
       "dependencies": {
         "com.unity.barracuda": "2.0.0-pre.3"
-      },
-      "hash": "6a3659339ef1e9052f759738acf57830e0141282"
+      }
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
