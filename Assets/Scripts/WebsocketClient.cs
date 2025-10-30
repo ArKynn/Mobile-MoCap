@@ -20,7 +20,7 @@ public class WebsocketClient : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (pointLandmarkVisualizer)
+        if (pointLandmarkVisualizer && ws.IsAlive)
         {
             ws.Send(pointLandmarkVisualizer.GetLandmarkPointData());
         }
