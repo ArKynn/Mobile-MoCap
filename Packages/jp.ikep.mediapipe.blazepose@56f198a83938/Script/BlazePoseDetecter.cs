@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Mediapipe.PoseDetection;
 using Mediapipe.PoseLandmark;
+using UnityEngine.UI;
 
 namespace Mediapipe.BlazePose{
     public class BlazePoseDetecter: System.IDisposable
@@ -56,7 +57,7 @@ namespace Mediapipe.BlazePose{
         PoseDetecter detecter;
         PoseLandmarker landmarker;
         ComputeShader cs;
-        ComputeBuffer letterboxTextureBuffer, poseRegionBuffer, cropedTextureBuffer;
+        ComputeBuffer rotationTextureBuffer, letterboxTextureBuffer, poseRegionBuffer, cropedTextureBuffer;
         ComputeBuffer rvfWindowBuffer, rvfWindowWorldBuffer, lastValueScale, lastValueScaleWorld;
         int rvfWindowCount;
         // Array of pose landmarks for accessing data with CPU (C#). 
@@ -71,6 +72,7 @@ namespace Mediapipe.BlazePose{
             detecter = new PoseDetecter(resource.detectionResource);
             landmarker = new PoseLandmarker(resource.landmarkResource, (PoseLandmarkModel)blazePoseModel);
 
+            rotationTextureBuffer = new ComputeBuffer(DETECTION_INPUT_IMAGE_SIZE * DETECTION_INPUT_IMAGE_SIZE * 3, sizeof(float));
             letterboxTextureBuffer = new ComputeBuffer(DETECTION_INPUT_IMAGE_SIZE * DETECTION_INPUT_IMAGE_SIZE * 3, sizeof(float));
             poseRegionBuffer = new ComputeBuffer(1, sizeof(float) * 24);
             cropedTextureBuffer = new ComputeBuffer(LANDMARK_INPUT_IMAGE_SIZE * LANDMARK_INPUT_IMAGE_SIZE * 3, sizeof(float));
@@ -92,11 +94,34 @@ namespace Mediapipe.BlazePose{
         // Process pipeline is refered https://google.github.io/mediapipe/solutions/pose#ml-pipeline.
         // Check above URL or BlazePose paper(https://arxiv.org/abs/2006.10204) for details.
         public void ProcessImage(
-            Texture inputTexture, 
+            RawImage image,
+            Texture inputTexture,
+            float imageRotationAngle = 0,
             BlazePoseModel blazePoseModel = BlazePoseModel.full, 
             float poseThreshold = 0.75f, 
             float iouThreshold = 0.3f)
         {
+            
+            // Image rotation 
+            // Output images will be rotated
+            
+            var outputTexture = new RenderTexture(inputTexture.width, inputTexture.height, 0, RenderTextureFormat.ARGB32)
+                {
+                    enableRandomWrite = true
+                };
+            
+            cs.SetTexture(4, "_InputTex", inputTexture);
+            cs.SetTexture(4, "_Result", outputTexture);
+            cs.SetFloat("_Angle", imageRotationAngle);
+            cs.SetVector("_TexSize", new Vector2(inputTexture.width, inputTexture.height));
+            int threadGroupsX = Mathf.CeilToInt(inputTexture.width / 8.0f);
+            int threadGroupsY = Mathf.CeilToInt(inputTexture.height / 8.0f);
+            cs.Dispatch(4, threadGroupsX, threadGroupsY, 1);
+            
+            //For testing purposes, allows seeing computeShader result directly. Uncomment below and comment on WebCamInput.cs Update method.
+            //image.texture = outputTexture;
+            
+            
             // Letterboxing scale factor
             var scale = new Vector2(
                 Mathf.Max((float)inputTexture.height / inputTexture.width, 1),
@@ -107,12 +132,13 @@ namespace Mediapipe.BlazePose{
             // Image scaling and padding
             // Output image is letter-box image.
             // For example, top and bottom pixels of `letterboxTexture` are black if `inputTexture` size is 1920(width)*1080(height)
+            
             cs.SetInt("_isLinerColorSpace", QualitySettings.activeColorSpace == ColorSpace.Linear ? 1 : 0);
             cs.SetInt("_letterboxWidth", DETECTION_INPUT_IMAGE_SIZE);
             cs.SetVector("_spadScale", scale);
-            cs.SetTexture(0, "_letterboxInput", inputTexture);
+            cs.SetTexture(0, "_letterboxInput", outputTexture);
             cs.SetBuffer(0, "_letterboxTextureBuffer", letterboxTextureBuffer);
-            cs.Dispatch(0, DETECTION_INPUT_IMAGE_SIZE / 8, DETECTION_INPUT_IMAGE_SIZE / 8, 1);
+            cs.Dispatch(0, DETECTION_INPUT_IMAGE_SIZE / 8, DETECTION_INPUT_IMAGE_SIZE / 8, 1); 
 
             // Predict Pose detection.
             detecter.ProcessImage(letterboxTextureBuffer, poseThreshold, iouThreshold);
@@ -171,6 +197,7 @@ namespace Mediapipe.BlazePose{
         public void Dispose(){
             detecter.Dispose();
             landmarker.Dispose();
+            rotationTextureBuffer.Dispose();
             letterboxTextureBuffer.Dispose();
             poseRegionBuffer.Dispose();
             cropedTextureBuffer.Dispose();

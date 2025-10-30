@@ -1,18 +1,16 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using Mediapipe.BlazePose;
+using UnityEngine.UI;
 using static BodyLandmarks;
 
 public class PointLandmarkVisualizer : MonoBehaviour
 {
     [SerializeField] Camera mainCamera;
     [SerializeField] WebCamInput webCamInput;
-    [SerializeField, Range(0, 1)] float humanExistThreshold = 0.5f;
     [SerializeField] private bool useWorldCoords;
     [SerializeField] private GameObject landmarkPrefab;
     [SerializeField] private GameObject lineRendererPrefab;
+    [SerializeField] private RawImage _image;
 
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
@@ -25,7 +23,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
 
     void LateUpdate(){
         // Predict pose by neural network model.
-        detecter.ProcessImage(webCamInput.inputRT);
+        detecter.ProcessImage(_image, webCamInput.inputRT, -webCamInput.WebCamTexture.videoRotationAngle);
 
         UpdatePoints(useWorldCoords);
     }

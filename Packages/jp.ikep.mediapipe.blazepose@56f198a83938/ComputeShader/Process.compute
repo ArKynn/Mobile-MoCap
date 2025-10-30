@@ -2,6 +2,7 @@
 #pragma kernel PoseRegionUpdate
 #pragma kernel CropImage
 #pragma kernel PostProcess
+#pragma kernel RotateTexture
 
 #define PI 3.14159265359
 
@@ -259,4 +260,48 @@ void PostProcess(uint id : SV_DispatchThreadID)
         _postOutput[id] = float4(x, score);
         _postLastValueScale[id] = value_scale;
     }
+}
+
+// Kernel 4
+
+Texture2D _InputTex;
+SamplerState samplerLinearClamp;
+RWTexture2D<float4> _Result;
+
+float _Angle;      // degrees
+float2 _TexSize;   // (width, height)
+
+[numthreads(8, 8, 1)]
+void RotateTexture(int3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _TexSize.x || id.y >= _TexSize.y)
+        return;
+
+    // Normalized UVs in [0,1]
+    float2 uv = (id.xy + 0.5) / _TexSize;
+
+    // Center-based coordinates
+    float2 center = float2(0.5, 0.5);
+    float2 pos = uv - center;
+
+    // Convert to radians and rotate counterclockwise (correct for image space)
+    float rad = radians(-_Angle); // note the negative sign
+    float cosA = cos(rad);
+    float sinA = sin(rad);
+
+    float2 rotated;
+    rotated.x = pos.x * cosA - pos.y * sinA;
+    rotated.y = pos.x * sinA + pos.y * cosA;
+
+    float2 rotatedUV = rotated + center;
+
+    // Transparent outside original texture bounds
+    float4 color = float4(0, 0, 0, 0);
+    if (rotatedUV.x >= 0 && rotatedUV.x <= 1 && rotatedUV.y >= 0 && rotatedUV.y <= 1)
+    {
+        color = _InputTex.SampleLevel(samplerLinearClamp, rotatedUV, 0);
+    }
+    else
+
+    _Result[id.xy] = color;
 }
