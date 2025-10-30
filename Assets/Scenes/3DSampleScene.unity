@@ -693,7 +693,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1222800828}
-  - component: {fileID: 1222800827}
   - component: {fileID: 1222800829}
   m_Layer: 0
   m_Name: Visuallizer
@@ -702,23 +701,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1222800827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1222800826}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1126ae32770f634faebcb1c42c88a03, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 765897653}
-  webCamInput: {fileID: 636196908}
-  inputImageUI: {fileID: 332225587}
-  shader: {fileID: 4800000, guid: 33ca7d622658d844e81c06b6a8ac78fd, type: 3}
-  humanExistThreshold: 0.5
 --- !u!4 &1222800828
 Transform:
   m_ObjectHideFlags: 0
