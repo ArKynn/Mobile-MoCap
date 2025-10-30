@@ -8,6 +8,7 @@ public class WebCamInput : MonoBehaviour
 {
     [SerializeField] string webCamName;
     [SerializeField] Vector2 webCamResolution = new Vector2(1080, 1920);
+    [SerializeField] PointLandmarkVisualizer pointLandmarkVisualizer;
     [SerializeField] RawImage image;
     [SerializeField] CanvasScaler scaler;
 
@@ -21,8 +22,10 @@ public class WebCamInput : MonoBehaviour
 
     private void Awake()
     {
+#if UNITY_ANDROID
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Screen.orientation = ScreenOrientation.Portrait;
+#endif
     }
 
     void Start()
@@ -39,7 +42,6 @@ public class WebCamInput : MonoBehaviour
         _devices = WebCamTexture.devices;
         _webCamTexture = new WebCamTexture();
         UpdateWebcam();
-        UpdateRawImage();
     }
 
     public void NextWebcamDevice()
@@ -51,31 +53,31 @@ public class WebCamInput : MonoBehaviour
         else _currentDevice = 0;
         
         UpdateWebcam();
-        UpdateRawImage();
     }
     
     void UpdateWebcam()
     {
         _webCamTexture.Stop();
         _webCamTexture.deviceName = CurrentDevice.name;
-        _webCamTexture.requestedWidth = inputRT.width;
-        _webCamTexture.requestedHeight = inputRT.height;
+#if UNITY_ANDROID
+        _webCamTexture.requestedWidth = 1080;
+        _webCamTexture.requestedHeight = 1920;
+#endif
         _webCamTexture.Play();
-    }
-
-    void UpdateRawImage()
-    {
-        scaler.referenceResolution = new Vector2(_webCamTexture.requestedWidth, _webCamTexture.requestedHeight);
-        image.rectTransform.sizeDelta = new Vector2(_webCamTexture.requestedWidth, _webCamTexture.requestedHeight);
     }
 
     void Update()
     {
         if(!_webCamTexture.didUpdateThisFrame) return;
         
-        Graphics.Blit(_webCamTexture, inputRT); 
-        
+        Graphics.Blit(_webCamTexture, inputRT);
+
+#if UNITY_ANDROID
+        image.texture = pointLandmarkVisualizer.Detecter.OutputTexture;
+#else
         image.texture = inputRT;
+#endif
+
     }
 
     void OnDestroy(){

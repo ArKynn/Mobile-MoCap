@@ -41,6 +41,7 @@ namespace Mediapipe.BlazePose{
             This data is (score, 0, 0, 0).
         */
         public ComputeBuffer worldLandmarkBuffer;
+        public RenderTexture OutputTexture => outputTexture;
         // Count of pose landmark vertices.
         public int vertexCount => landmarker.vertexCount;
         #endregion
@@ -59,6 +60,7 @@ namespace Mediapipe.BlazePose{
         ComputeShader cs;
         ComputeBuffer rotationTextureBuffer, letterboxTextureBuffer, poseRegionBuffer, cropedTextureBuffer;
         ComputeBuffer rvfWindowBuffer, rvfWindowWorldBuffer, lastValueScale, lastValueScaleWorld;
+        RenderTexture outputTexture;
         int rvfWindowCount;
         // Array of pose landmarks for accessing data with CPU (C#). 
         Vector4[] poseLandmarks, poseWorldLandmarks;
@@ -105,10 +107,10 @@ namespace Mediapipe.BlazePose{
             // Image rotation 
             // Output images will be rotated
             
-            var outputTexture = new RenderTexture(inputTexture.width, inputTexture.height, 0, RenderTextureFormat.ARGB32)
-                {
-                    enableRandomWrite = true
-                };
+            outputTexture = new RenderTexture(inputTexture.width, inputTexture.height, 0, RenderTextureFormat.ARGB32)
+            {
+                enableRandomWrite = true
+            };
             
             cs.SetTexture(4, "_InputTex", inputTexture);
             cs.SetTexture(4, "_Result", outputTexture);
@@ -117,10 +119,6 @@ namespace Mediapipe.BlazePose{
             int threadGroupsX = Mathf.CeilToInt(inputTexture.width / 8.0f);
             int threadGroupsY = Mathf.CeilToInt(inputTexture.height / 8.0f);
             cs.Dispatch(4, threadGroupsX, threadGroupsY, 1);
-            
-            //For testing purposes, allows seeing computeShader result directly. Uncomment below and comment on WebCamInput.cs Update method.
-            //image.texture = outputTexture;
-            
             
             // Letterboxing scale factor
             var scale = new Vector2(

@@ -15,7 +15,8 @@ public class PointLandmarkVisualizer : MonoBehaviour
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
     Landmark[] landmarks;
-    
+
+    public BlazePoseDetecter Detecter => detecter;
     void Start(){
         detecter = new BlazePoseDetecter();
         InitializePoints();
