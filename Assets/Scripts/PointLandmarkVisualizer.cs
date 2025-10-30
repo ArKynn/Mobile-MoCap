@@ -55,6 +55,16 @@ public class PointLandmarkVisualizer : MonoBehaviour
         }
     }
 
+    public string GetLandmarkPointData()
+    {
+        string pointData = "";
+        for (int i = 0; i < landmarkObjects.Length; i++)
+        {
+            pointData += $"\n{i}: {(useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i))}";
+        }
+        return pointData;
+    }
+
     void OnApplicationQuit()
     {
         // Must call Dispose method when no longer in use.
