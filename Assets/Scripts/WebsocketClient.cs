@@ -27,7 +27,7 @@ public class WebsocketClient : MonoBehaviour
 
     public void InitWebsocketClient()
     {
-        if(ws is null || !ws.IsAlive) return;
+        if(ws is not null && !ws.IsAlive) return;
         try
         {
             IP = inputField.text;
