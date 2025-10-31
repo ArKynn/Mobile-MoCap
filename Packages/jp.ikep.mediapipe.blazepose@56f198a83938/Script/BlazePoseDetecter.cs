@@ -154,7 +154,7 @@ namespace Mediapipe.BlazePose{
             cs.Dispatch(1, 1, 1, 1);
 
             // Scale and pad to letter-box image and crop pose region from letter-box image.
-            cs.SetTexture(2, "_inputTexture", outputTexture);
+            cs.SetTexture(2, "_inputTexture", inputTexture);
             cs.SetBuffer(2, "_cropRegion", poseRegionBuffer);
             cs.SetBuffer(2, "_cropedTextureBuffer", cropedTextureBuffer);
             cs.Dispatch(2, LANDMARK_INPUT_IMAGE_SIZE / 8, LANDMARK_INPUT_IMAGE_SIZE / 8, 1);
