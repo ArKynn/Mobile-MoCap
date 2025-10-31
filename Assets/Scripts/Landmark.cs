@@ -37,7 +37,7 @@ public class Landmark : MonoBehaviour
     {
         visibilityScore = landmarkInfo.w;
         Vector3 bufferVector = new Vector3(landmarkInfo.x, landmarkInfo.y, landmarkInfo.z);
-        if(!float.IsNaN(bufferVector.x) && !float.IsNaN(bufferVector.y) && !float.IsNaN(bufferVector.z)) transform.position = bufferVector;
+        if(!float.IsNaN(bufferVector.x) && !float.IsNaN(bufferVector.y) && !float.IsNaN(bufferVector.z)) transform.localPosition = bufferVector;
         
         material.color = Color32.Lerp(blockedViewColor, inViewColor, visibilityScore);
     }

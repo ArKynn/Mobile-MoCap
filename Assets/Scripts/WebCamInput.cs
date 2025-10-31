@@ -64,6 +64,7 @@ public class WebCamInput : MonoBehaviour
         _webCamTexture.requestedHeight = 1920;
 #endif
         _webCamTexture.Play();
+        pointLandmarkVisualizer.transform.rotation = Quaternion.Euler(0, 0, _webCamTexture.videoRotationAngle);
     }
 
     void Update()
