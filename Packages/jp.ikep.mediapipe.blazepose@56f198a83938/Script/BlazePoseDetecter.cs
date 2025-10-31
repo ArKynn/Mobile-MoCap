@@ -74,6 +74,11 @@ namespace Mediapipe.BlazePose{
             detecter = new PoseDetecter(resource.detectionResource);
             landmarker = new PoseLandmarker(resource.landmarkResource, (PoseLandmarkModel)blazePoseModel);
 
+            outputTexture = new RenderTexture(0,0, 0, RenderTextureFormat.ARGB32)
+            {
+                enableRandomWrite = true
+            };
+
             rotationTextureBuffer = new ComputeBuffer(DETECTION_INPUT_IMAGE_SIZE * DETECTION_INPUT_IMAGE_SIZE * 3, sizeof(float));
             letterboxTextureBuffer = new ComputeBuffer(DETECTION_INPUT_IMAGE_SIZE * DETECTION_INPUT_IMAGE_SIZE * 3, sizeof(float));
             poseRegionBuffer = new ComputeBuffer(1, sizeof(float) * 24);
@@ -106,11 +111,11 @@ namespace Mediapipe.BlazePose{
             
             // Image rotation 
             // Output images will be rotated
-            
-            outputTexture = new RenderTexture(inputTexture.width, inputTexture.height, 0, RenderTextureFormat.ARGB32)
-            {
-                enableRandomWrite = true
-            };
+
+            outputTexture?.Release();
+            outputTexture.width = inputTexture.width;
+            outputTexture.height = inputTexture.height;
+            outputTexture.Create();
             
             cs.SetTexture(4, "_InputTex", inputTexture);
             cs.SetTexture(4, "_Result", outputTexture);
@@ -149,7 +154,7 @@ namespace Mediapipe.BlazePose{
             cs.Dispatch(1, 1, 1, 1);
 
             // Scale and pad to letter-box image and crop pose region from letter-box image.
-            cs.SetTexture(2, "_inputTexture", inputTexture);
+            cs.SetTexture(2, "_inputTexture", outputTexture);
             cs.SetBuffer(2, "_cropRegion", poseRegionBuffer);
             cs.SetBuffer(2, "_cropedTextureBuffer", cropedTextureBuffer);
             cs.Dispatch(2, LANDMARK_INPUT_IMAGE_SIZE / 8, LANDMARK_INPUT_IMAGE_SIZE / 8, 1);
