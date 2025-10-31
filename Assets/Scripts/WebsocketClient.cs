@@ -1,7 +1,10 @@
 using System;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using WebSocketSharp;
 public class WebsocketClient : MonoBehaviour
 {
@@ -10,50 +13,38 @@ public class WebsocketClient : MonoBehaviour
     private string IP;
     [SerializeField] private string port = "12348";
     [SerializeField] private PointLandmarkVisualizer pointLandmarkVisualizer;
+    [SerializeField] private TMP_InputField inputField;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        InitWebsocketClient();
-    }
 
     // Update is called once per frame
     void Update()
     {
-        if (pointLandmarkVisualizer && ws.IsAlive)
+        if (pointLandmarkVisualizer is not null && ws is not null && ws.IsAlive)
         {
             ws.Send(pointLandmarkVisualizer.GetLandmarkPointData());
         }
     }
 
-    private void GetWifiIP()
+    public void InitWebsocketClient()
     {
-        foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+        if(ws is null || !ws.IsAlive) return;
+        try
         {
-            if (ni.OperationalStatus == OperationalStatus.Up)
-            {
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
-                {
-                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip != null && ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            IP = ip.Address.ToString();
-                        }
-                    }
-                }
-            }
+            IP = inputField.text;
+            Debug.Log(IP);
+            Debug.Log(port);
+            serverUrl = $"ws://{IP}:{port}";
+
+            ws = new WebSocket(serverUrl);
+            ws.OnOpen += OnServerOpen;
+            ws.Connect();
         }
-    }
-
-    private void InitWebsocketClient()
-    {
-        GetWifiIP();
-        serverUrl = $"ws://{IP}:{port}";
-
-        ws = new WebSocket(serverUrl);
-        ws.OnOpen += OnServerOpen;
-        ws.Connect();
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        
     }
 
     private void OnServerOpen(object sender, EventArgs e)

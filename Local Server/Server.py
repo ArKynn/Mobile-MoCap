@@ -4,6 +4,7 @@ import socket
 
 hostname = socket.gethostname()
 IpAddr = socket.gethostbyname(hostname)
+print(IpAddr)
 
 
 async def handle_websocket(websocket):
