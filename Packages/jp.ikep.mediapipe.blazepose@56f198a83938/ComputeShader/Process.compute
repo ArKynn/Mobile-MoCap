@@ -284,8 +284,8 @@ void RotateTexture(int3 id : SV_DispatchThreadID)
     float2 center = float2(0.5, 0.5);
     float2 pos = uv - center;
 
-    // Convert to radians and rotate counterclockwise (correct for image space)
-    float rad = radians(-_Angle); // note the negative sign
+    // Convert to radians and rotate 
+    float rad = radians(-_Angle);
     float cosA = cos(rad);
     float sinA = sin(rad);
 
