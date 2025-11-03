@@ -50,6 +50,5 @@ public class WebsocketClient : MonoBehaviour
     private void OnServerOpen(object sender, EventArgs e)
     {
         print("Server open");
-        ws.Send("Client Connected");
     }
 }

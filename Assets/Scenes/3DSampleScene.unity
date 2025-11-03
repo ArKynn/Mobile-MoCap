@@ -1811,7 +1811,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd61fecec27f4b4bb561cd6bde52951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WebsocketClient
-  port: 12348
+  port: 80
   pointLandmarkVisualizer: {fileID: 1222800829}
   inputField: {fileID: 1210259870}
 --- !u!4 &1857902052

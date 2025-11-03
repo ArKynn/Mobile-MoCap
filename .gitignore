@@ -100,3 +100,6 @@ InitTestScene*.unity*
 
 # Rider
 /.idea
+
+#Local server created logs
+/Local Server/Logs
