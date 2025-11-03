@@ -62,7 +62,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
         for (int i = 0; i < landmarkObjects.Length; i++)
         {
             var temp = useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i);
-            yield return new []{i, temp[0], temp[1], temp[2], temp[3]};
+            yield return new []{temp[0], temp[1], temp[2], temp[3]};
             
         }
     }

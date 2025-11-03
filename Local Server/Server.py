@@ -21,8 +21,13 @@ async def handle_websocket(websocket):
 
 async def handle_message(message):
     with open(filePath, "a") as log:
-        [i,x,y,z,w] = struct.unpack("@5f", message)
-        print(int(i),x,y,z,w, file=log)
+        if len(message) == 8:
+            [x,y] = struct.unpack("@2f", message)
+            print(int(x),y, file=log)
+
+        elif len(message) == 16:
+            [x,y,z,w] = struct.unpack("@4f", message)
+            print(x,y,z,w, file=log)
 
 async def main():
     try:

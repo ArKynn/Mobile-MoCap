@@ -1,12 +1,6 @@
 using System;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Text;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using WebSocketSharp;
 public class WebsocketClient : MonoBehaviour
 {
@@ -14,6 +8,8 @@ public class WebsocketClient : MonoBehaviour
     private string serverUrl;
     private string IP;
     private byte[] serverMessage;
+    private float startTime;
+    private float frameCount = -1;
     [SerializeField] private string port = "12348";
     [SerializeField] private PointLandmarkVisualizer pointLandmarkVisualizer;
     [SerializeField] private TMP_InputField inputField;
@@ -21,15 +17,24 @@ public class WebsocketClient : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (pointLandmarkVisualizer is not null && ws is not null && ws.IsAlive)
+        ConvertAndSendMessage();
+    }
+
+    private void ConvertAndSendMessage()
+    {
+        if (pointLandmarkVisualizer is null || ws is null || !ws.IsAlive) return;
+        
+        frameCount++;
+        var messageToSend = new []{frameCount, Time.time - startTime};
+        serverMessage = new byte[messageToSend.Length * sizeof(float)];
+        Buffer.BlockCopy(messageToSend, 0, serverMessage, 0, serverMessage.Length);
+        ws.Send(serverMessage);
+            
+        foreach (var point in pointLandmarkVisualizer.GetLandmarkPointData())
         {
-            var messageToSend = pointLandmarkVisualizer.GetLandmarkPointData();
-            foreach (var point in messageToSend)
-            {
-                serverMessage = new byte[point.Length * sizeof(float)];
-                Buffer.BlockCopy(point, 0, serverMessage, 0, serverMessage.Length);
-                ws.Send(serverMessage);
-            }
+            serverMessage = new byte[point.Length * sizeof(float)];
+            Buffer.BlockCopy(point, 0, serverMessage, 0, serverMessage.Length);
+            ws.Send(serverMessage);
         }
     }
 
@@ -58,5 +63,11 @@ public class WebsocketClient : MonoBehaviour
     private void OnServerOpen(object sender, EventArgs e)
     {
         print("Server open");
+        startTime = Time.time;
+    }
+
+    private void OnApplicationQuit()
+    {
+        ws.Close();
     }
 }
