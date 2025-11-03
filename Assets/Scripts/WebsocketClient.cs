@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,17 +13,23 @@ public class WebsocketClient : MonoBehaviour
     private WebSocket ws;
     private string serverUrl;
     private string IP;
+    private byte[] serverMessage;
     [SerializeField] private string port = "12348";
     [SerializeField] private PointLandmarkVisualizer pointLandmarkVisualizer;
     [SerializeField] private TMP_InputField inputField;
-    
 
     // Update is called once per frame
     void Update()
     {
         if (pointLandmarkVisualizer is not null && ws is not null && ws.IsAlive)
         {
-            ws.Send(pointLandmarkVisualizer.GetLandmarkPointData());
+            var messageToSend = pointLandmarkVisualizer.GetLandmarkPointData();
+            foreach (var point in messageToSend)
+            {
+                serverMessage = new byte[point.Length * sizeof(float)];
+                Buffer.BlockCopy(point, 0, serverMessage, 0, serverMessage.Length);
+                ws.Send(serverMessage);
+            }
         }
     }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Mediapipe.BlazePose;
 using UnityEngine.UI;
@@ -55,14 +57,14 @@ public class PointLandmarkVisualizer : MonoBehaviour
         }
     }
 
-    public string GetLandmarkPointData()
+    public IEnumerable<float[]> GetLandmarkPointData()
     {
-        string pointData = "";
         for (int i = 0; i < landmarkObjects.Length; i++)
         {
-            pointData += $"\n{i}: {(useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i))}";
+            var temp = useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i);
+            yield return new []{i, temp[0], temp[1], temp[2], temp[3]};
+            
         }
-        return pointData;
     }
 
     void OnApplicationQuit()

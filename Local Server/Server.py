@@ -3,8 +3,8 @@ import websockets
 import socket
 import os
 import datetime
+import struct
 
-logCreated = False,
 filePath = os.path.join(os.path.join(os.path.abspath(os.getcwd()),"logs") , str(datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S").__add__(".txt")))
 print(filePath)
 
@@ -21,9 +21,10 @@ async def handle_websocket(websocket):
 
 async def handle_message(message):
     with open(filePath, "a") as log:
-        log.write(message)
+        [i,x,y,z,w] = struct.unpack("@5f", message)
+        print(int(i),x,y,z,w, file=log)
 
-async def main():   
+async def main():
     try:
         async with websockets.serve(
                 handle_websocket,
