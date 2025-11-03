@@ -2,12 +2,12 @@ using System;
 using TMPro;
 using UnityEngine;
 using WebSocketSharp;
+using static BodyLandmarks;
 public class WebsocketClient : MonoBehaviour
 {
     private WebSocket ws;
     private string serverUrl;
     private string IP;
-    private byte[] serverMessage;
     private float startTime;
     private float frameCount = -1;
     [SerializeField] private string port = "12348";
@@ -26,15 +26,11 @@ public class WebsocketClient : MonoBehaviour
         
         frameCount++;
         var messageToSend = new []{frameCount, Time.time - startTime};
-        serverMessage = new byte[messageToSend.Length * sizeof(float)];
-        Buffer.BlockCopy(messageToSend, 0, serverMessage, 0, serverMessage.Length);
-        ws.Send(serverMessage);
+        SendMessage(messageToSend);
             
         foreach (var point in pointLandmarkVisualizer.GetLandmarkPointData())
         {
-            serverMessage = new byte[point.Length * sizeof(float)];
-            Buffer.BlockCopy(point, 0, serverMessage, 0, serverMessage.Length);
-            ws.Send(serverMessage);
+            SendMessage(point);
         }
     }
 
@@ -45,7 +41,6 @@ public class WebsocketClient : MonoBehaviour
         {
             IP = inputField.text;
             Debug.Log(IP);
-            Debug.Log(port);
             serverUrl = $"ws://{IP}:{port}";
 
             ws = new WebSocket(serverUrl);
@@ -64,8 +59,27 @@ public class WebsocketClient : MonoBehaviour
     {
         print("Server open");
         startTime = Time.time;
+        InitialLog();
     }
 
+    private void InitialLog()
+    {
+        var pointCount = new []{Convert.ToSingle(Landmarks.Count)};
+        SendMessage(pointCount);
+
+        foreach (var pair in LandmarkPairs)
+        {
+            SendMessage(new [] {pair.X, pair.Y});
+        }
+    }
+
+    private void SendMessage(float[] messageToSend)
+    {
+        var serverMessage = new byte[messageToSend.Length * sizeof(float)];
+        Buffer.BlockCopy(messageToSend, 0, serverMessage, 0, serverMessage.Length);
+        ws.Send(serverMessage);
+    }
+    
     private void OnApplicationQuit()
     {
         ws.Close();
