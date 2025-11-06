@@ -6,19 +6,20 @@ using static BodyLandmarks;
 
 public class PointLandmarkVisualizer : MonoBehaviour
 {
-    [SerializeField] Camera mainCamera;
-    [SerializeField] WebCamInput webCamInput;
     [SerializeField] private bool useWorldCoords;
     [SerializeField] private GameObject landmarkPrefab;
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private RawImage _image;
 
+    WebCamInput webCamInput;
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
     Landmark[] landmarks;
 
     public BlazePoseDetecter Detecter => detecter;
-    void Start(){
+    void Start()
+    {
+        webCamInput = FindFirstObjectByType<WebCamInput>();
         detecter = new BlazePoseDetecter();
         InitializePoints();
     }

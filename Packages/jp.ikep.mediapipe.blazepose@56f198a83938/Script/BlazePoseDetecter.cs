@@ -74,7 +74,12 @@ namespace Mediapipe.BlazePose{
             detecter = new PoseDetecter(resource.detectionResource);
             landmarker = new PoseLandmarker(resource.landmarkResource, (PoseLandmarkModel)blazePoseModel);
 
-            outputTexture = new RenderTexture(0,0, 0, RenderTextureFormat.ARGB32)
+            var desc = new RenderTextureDescriptor(1, 1)
+            {
+                colorFormat = RenderTextureFormat.Default,
+                sRGB = false
+            };
+            outputTexture = new RenderTexture(desc)
             {
                 enableRandomWrite = true
             };
@@ -111,7 +116,7 @@ namespace Mediapipe.BlazePose{
             
             // Image rotation 
             // Output images will be rotated
-
+            
             outputTexture?.Release();
             outputTexture.width = inputTexture.width;
             outputTexture.height = inputTexture.height;
@@ -124,6 +129,8 @@ namespace Mediapipe.BlazePose{
             int threadGroupsX = Mathf.CeilToInt(inputTexture.width / 8.0f);
             int threadGroupsY = Mathf.CeilToInt(inputTexture.height / 8.0f);
             cs.Dispatch(4, threadGroupsX, threadGroupsY, 1);
+            
+            image.texture = outputTexture;
             
             // Letterboxing scale factor
             var scale = new Vector2(
@@ -139,7 +146,7 @@ namespace Mediapipe.BlazePose{
             cs.SetInt("_isLinerColorSpace", QualitySettings.activeColorSpace == ColorSpace.Linear ? 1 : 0);
             cs.SetInt("_letterboxWidth", DETECTION_INPUT_IMAGE_SIZE);
             cs.SetVector("_spadScale", scale);
-            cs.SetTexture(0, "_letterboxInput", outputTexture);
+            cs.SetTexture(0, "_letterboxInput", inputTexture);
             cs.SetBuffer(0, "_letterboxTextureBuffer", letterboxTextureBuffer);
             cs.Dispatch(0, DETECTION_INPUT_IMAGE_SIZE / 8, DETECTION_INPUT_IMAGE_SIZE / 8, 1); 
 

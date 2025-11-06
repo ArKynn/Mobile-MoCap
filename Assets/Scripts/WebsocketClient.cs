@@ -5,16 +5,22 @@ using WebSocketSharp;
 using static BodyLandmarks;
 public class WebsocketClient : MonoBehaviour
 {
+    [SerializeField] private string port = "80";
+    [SerializeField] private TMP_InputField inputField;
+    
+    private PointLandmarkVisualizer pointLandmarkVisualizer;
     private WebSocket ws;
     private string serverUrl;
     private string IP;
     private float startTime;
     private float frameCount = -1;
-    [SerializeField] private string port = "12348";
-    [SerializeField] private PointLandmarkVisualizer pointLandmarkVisualizer;
-    [SerializeField] private TMP_InputField inputField;
-
+    
     // Update is called once per frame
+    private void Start()
+    {
+        pointLandmarkVisualizer = FindFirstObjectByType<PointLandmarkVisualizer>();
+    }
+    
     void Update()
     {
         ConvertAndSendMessage();

@@ -6,15 +6,13 @@ using UnityEngine.UI;
 
 public class WebCamInput : MonoBehaviour
 {
-    [SerializeField] string webCamName;
     [SerializeField] Vector2 webCamResolution = new Vector2(1080, 1920);
-    [SerializeField] PointLandmarkVisualizer pointLandmarkVisualizer;
     [SerializeField] RawImage image;
-    [SerializeField] CanvasScaler scaler;
-
+    
+    private PointLandmarkVisualizer _pointLandmarkVisualizer;
     private WebCamTexture _webCamTexture;
     public WebCamTexture WebCamTexture => _webCamTexture;
-    public RenderTexture inputRT;
+    [NonSerialized] public RenderTexture inputRT;
     
     private WebCamDevice[] _devices;
     private int _currentDevice;
@@ -22,6 +20,8 @@ public class WebCamInput : MonoBehaviour
 
     private void Awake()
     {
+        _pointLandmarkVisualizer = FindFirstObjectByType<PointLandmarkVisualizer>();
+        
 #if UNITY_ANDROID
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Screen.orientation = ScreenOrientation.Portrait;
@@ -30,7 +30,13 @@ public class WebCamInput : MonoBehaviour
 
     void Start()
     {
-        inputRT = new RenderTexture((int)webCamResolution.x, (int)webCamResolution.y, 0)
+        var desc = new RenderTextureDescriptor((int)webCamResolution.x, (int)webCamResolution.y)
+        {
+            colorFormat = RenderTextureFormat.Default,
+            sRGB = false
+        };
+        
+        inputRT = new RenderTexture(desc)
         {
             enableRandomWrite = true
         };
@@ -59,12 +65,13 @@ public class WebCamInput : MonoBehaviour
     {
         _webCamTexture.Stop();
         _webCamTexture.deviceName = CurrentDevice.name;
+        _webCamTexture.requestedFPS = 60;
 #if UNITY_ANDROID
         _webCamTexture.requestedWidth = 1080;
         _webCamTexture.requestedHeight = 1920;
 #endif
         _webCamTexture.Play();
-        pointLandmarkVisualizer.transform.rotation = Quaternion.Euler(0, 0, _webCamTexture.videoRotationAngle);
+        _pointLandmarkVisualizer.transform.rotation = Quaternion.Euler(0, 0, -_webCamTexture.videoRotationAngle);
     }
 
     void Update()
@@ -72,13 +79,8 @@ public class WebCamInput : MonoBehaviour
         if(!_webCamTexture.didUpdateThisFrame) return;
         
         Graphics.Blit(_webCamTexture, inputRT);
-
-#if UNITY_ANDROID
-        image.texture = pointLandmarkVisualizer.Detecter.OutputTexture;
-#else
-        image.texture = inputRT;
-#endif
-
+        
+        //image.texture = inputRT;
     }
 
     void OnDestroy(){
