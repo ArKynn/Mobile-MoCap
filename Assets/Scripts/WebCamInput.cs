@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class WebCamInput : MonoBehaviour
 {
     [SerializeField] Vector2 webCamResolution = new Vector2(1080, 1920);
-    [SerializeField] RawImage image;
+    //[SerializeField] RawImage image;
     
     private PointLandmarkVisualizer _pointLandmarkVisualizer;
     private WebCamTexture _webCamTexture;

@@ -10,6 +10,7 @@ public class Landmark : MonoBehaviour
 
     private List<Landmark> nextPoints;
     private List<LineRenderer> lineRenderers;
+    private List<Vector4> smoothingPoints;
     private GameObject lineRendererPrefab;
     public Material material { get; private set; }
     public float visibilityScore {get; private set;}
@@ -35,11 +36,56 @@ public class Landmark : MonoBehaviour
 
     public void UpdateValues(Vector4 landmarkInfo)
     {
-        visibilityScore = landmarkInfo.w;
-        Vector3 bufferVector = new Vector3(landmarkInfo.x, landmarkInfo.y, landmarkInfo.z);
-        if(!float.IsNaN(bufferVector.x) && !float.IsNaN(bufferVector.y) && !float.IsNaN(bufferVector.z)) transform.localPosition = bufferVector;
+        if (smoothingPoints != null)
+        {
+            AddSmoothingPoint(landmarkInfo);
+            UpdatePointSmooth();
+        }
+        else UpdatePoint(landmarkInfo);
         
         material.color = Color32.Lerp(blockedViewColor, inViewColor, visibilityScore);
+    }
+
+    private void AddSmoothingPoint(Vector4 point)
+    {
+        if(smoothingPoints.Count >= smoothingPoints.Capacity) smoothingPoints.RemoveAt(0);
+        
+        smoothingPoints.Add(point);
+    }
+
+    private void UpdatePointSmooth()
+    {
+        var visibility = 0f;
+        var tempVector = Vector3.zero;
+        foreach (var point in smoothingPoints)
+        {
+            tempVector.x += point.x;
+            tempVector.y += point.y;
+            tempVector.z += point.z;
+            visibility += point.w;
+        }
+        visibilityScore = visibility / smoothingPoints.Count;
+        tempVector.x /= smoothingPoints.Count;
+        tempVector.y /= smoothingPoints.Count;
+        tempVector.z /= smoothingPoints.Count;
+        
+        UpdatePositionVectorNanCheck(tempVector);
+    }
+
+    private void UpdatePoint(Vector4 landmarkInfo)
+    {
+        visibilityScore = landmarkInfo.w;
+        UpdatePositionVectorNanCheck(landmarkInfo);
+    }
+
+    private void UpdatePositionVectorNanCheck(Vector3 position)
+    {
+        if(!float.IsNaN(position.x) && !float.IsNaN(position.y) && !float.IsNaN(position.z)) transform.localPosition = position;
+    }
+
+    public void InitializeSmoothing(int smoothingPointCount)
+    {
+        smoothingPoints ??= new List<Vector4>(smoothingPointCount);
     }
 
     public void SetNext(Landmark next)
