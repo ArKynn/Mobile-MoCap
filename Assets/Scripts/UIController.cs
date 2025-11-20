@@ -8,4 +8,14 @@ public class UIController : MonoBehaviour
     {
         settingsMenu?.SetActive(!settingsMenu.activeSelf);
     }
+
+    public void PlusSampleButton()
+    {
+        
+    }
+
+    public void MinusSampleButton()
+    {
+        
+    }
 }
