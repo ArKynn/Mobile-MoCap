@@ -6,8 +6,8 @@ using static BodyLandmarks;
 
 public class PointLandmarkVisualizer : MonoBehaviour
 {
-    [SerializeField] private bool useVisualizerSmoothing = false;
     [SerializeField] private int visualizerSmoothingPoints = 1;
+    [SerializeField] private int maxVisualizerSmoothingPoints = 10;
     [SerializeField] private GameObject landmarkPrefab;
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private RawImage _image;
@@ -16,6 +16,16 @@ public class PointLandmarkVisualizer : MonoBehaviour
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
     Landmark[] landmarks;
+
+    public int VisualizerSmoothingPoints
+    {
+        get => visualizerSmoothingPoints;
+        private set
+        {
+            visualizerSmoothingPoints = value;
+            UpdateSmoothing();
+        }
+    }
     
     private readonly bool useWorldCoords = true;
 
@@ -44,7 +54,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
             landmarkObjects[i].name = Landmarks[i];
             landmarks[i] = landmarkObjects[i].GetComponent<Landmark>();
             landmarks[i].SetLineRendererPrefab(lineRendererPrefab);
-            if (useVisualizerSmoothing) landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
+            landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
         }
 
         for (int i = 0; i < LandmarkPairs.Count; i++)
@@ -67,6 +77,20 @@ public class PointLandmarkVisualizer : MonoBehaviour
         {
             var temp = useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i);
             yield return new []{temp[0], temp[1], temp[2], temp[3]};
+        }
+    }
+
+    public void ModifySmoothingPoints(int modifier)
+    {
+        if(VisualizerSmoothingPoints + modifier < 0 || VisualizerSmoothingPoints + modifier > maxVisualizerSmoothingPoints) return;
+        VisualizerSmoothingPoints += modifier;
+    }
+
+    private void UpdateSmoothing()
+    {
+        for (int i = 0; i < Landmarks.Count; i++)
+        {
+            landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
         }
     }
 

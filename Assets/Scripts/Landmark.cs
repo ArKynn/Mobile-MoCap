@@ -36,7 +36,7 @@ public class Landmark : MonoBehaviour
 
     public void UpdateValues(Vector4 landmarkInfo)
     {
-        if (smoothingPoints != null)
+        if (smoothingPoints?.Capacity > 1)
         {
             AddSmoothingPoint(landmarkInfo);
             UpdatePointSmooth();
@@ -85,7 +85,7 @@ public class Landmark : MonoBehaviour
 
     public void InitializeSmoothing(int smoothingPointCount)
     {
-        smoothingPoints ??= new List<Vector4>(smoothingPointCount);
+        smoothingPoints = new List<Vector4>(smoothingPointCount);
     }
 
     public void SetNext(Landmark next)
