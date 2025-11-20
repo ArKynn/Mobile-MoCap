@@ -16,6 +16,8 @@ public class PointLandmarkVisualizer : MonoBehaviour
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
     Landmark[] landmarks;
+    private GameObject trackedPose;
+    private GameObject savedPose;
 
     public int VisualizerSmoothingPoints
     {
@@ -46,11 +48,23 @@ public class PointLandmarkVisualizer : MonoBehaviour
 
     void InitializePoints()
     {
+        trackedPose = new GameObject
+        {
+            transform =
+            {
+                parent = transform,
+                localPosition = Vector3.zero
+            },
+            name = "TrackedPose"
+        };
+        
         landmarkObjects = new GameObject[Landmarks.Count];
         landmarks = new Landmark[Landmarks.Count];
+        
         for (int i = 0; i < Landmarks.Count; i++)
         {
-            landmarkObjects[i] = Instantiate(landmarkPrefab,transform);
+            
+            landmarkObjects[i] = Instantiate(landmarkPrefab, trackedPose.transform);
             landmarkObjects[i].name = Landmarks[i];
             landmarks[i] = landmarkObjects[i].GetComponent<Landmark>();
             landmarks[i].SetLineRendererPrefab(lineRendererPrefab);
@@ -91,6 +105,15 @@ public class PointLandmarkVisualizer : MonoBehaviour
         for (int i = 0; i < Landmarks.Count; i++)
         {
             landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
+        }
+    }
+
+    public void SaveCurrentPose()
+    {
+        if(savedPose != null) Destroy(savedPose);
+        savedPose = Instantiate(trackedPose, transform);
+        {
+            name = "SavedPose";
         }
     }
 
