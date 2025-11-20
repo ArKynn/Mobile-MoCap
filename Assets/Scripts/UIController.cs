@@ -9,6 +9,8 @@ public class UIController : MonoBehaviour
     [SerializeField] private TMP_Text smoothingCounter;
     [SerializeField] private TMP_Text poseSaveTimerGraphic;
     [SerializeField] private float poseSaveTimerStart;
+    [SerializeField] private GameObject poseSimilarityObject;
+    [SerializeField] private TMP_Text poseSimilarityText;
     
     private PointLandmarkVisualizer visualizer;
     private float poseSaveTimer;
@@ -42,6 +44,7 @@ public class UIController : MonoBehaviour
         poseSaveTimer = poseSaveTimerStart;
         ToggleSettings();
         poseSaveTimerGraphic.GameObject().transform.parent.GameObject().SetActive(true);
+        poseSimilarityObject.SetActive(false);
     }
 
     private void UpdatePoseCountdown()
@@ -50,8 +53,16 @@ public class UIController : MonoBehaviour
         poseSaveTimerGraphic.text = poseSaveTimer.ToString("0.00");
         if (poseSaveTimer > 0) return;
         
-        visualizer.SaveCurrentPose();
         poseSaveTimerGraphic.GameObject().transform.parent.GameObject().SetActive(false);
+        poseSimilarityObject.SetActive(true);
+        visualizer.SaveCurrentPose();
+        
         isPoseSaving = false;
+        
+    }
+
+    public void UpdatePoseSimilarityScore(float score)
+    {
+        poseSimilarityText.text = score.ToString("0.00");
     }
 }

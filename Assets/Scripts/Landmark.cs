@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class Landmark : MonoBehaviour
     [SerializeField] private Color32 blockedViewColor = Color.red;
     [SerializeField] private Color32 inViewLineColor = Color.green;
     [SerializeField] private Color32 blockedViewLineColor = Color.red;
+    [SerializeField] private float copyAlphaModifier = 0.25f;
 
     private List<Landmark> nextPoints;
     private List<LineRenderer> lineRenderers;
@@ -97,5 +99,12 @@ public class Landmark : MonoBehaviour
     public void SetLineRendererPrefab(GameObject prefab)
     {
         lineRendererPrefab = prefab;
+    }
+
+    public void IsCopy()
+    {
+        inViewColor.a *= Convert.ToByte(inViewColor.a * copyAlphaModifier);
+        inViewLineColor.a = Convert.ToByte(inViewLineColor.a * copyAlphaModifier);
+        UpdateValues(new Vector4(transform.position.x, transform.position.y, transform.position.z, visibilityScore));
     }
 }

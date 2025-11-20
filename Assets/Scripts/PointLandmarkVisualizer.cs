@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Mediapipe.BlazePose;
 using UnityEngine.UI;
@@ -12,6 +14,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private RawImage _image;
 
+    private PoseSimilarityComparer poseSimilarityComparer;
     WebCamInput webCamInput;
     BlazePoseDetecter detecter;
     GameObject[] landmarkObjects;
@@ -19,6 +22,8 @@ public class PointLandmarkVisualizer : MonoBehaviour
     private GameObject trackedPose;
     private GameObject savedPose;
 
+    public GameObject TrackedPose => trackedPose;
+    
     public int VisualizerSmoothingPoints
     {
         get => visualizerSmoothingPoints;
@@ -34,6 +39,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
     public BlazePoseDetecter Detecter => detecter;
     void Start()
     {
+        poseSimilarityComparer = GetComponent<PoseSimilarityComparer>();
         webCamInput = FindFirstObjectByType<WebCamInput>();
         detecter = new BlazePoseDetecter();
         InitializePoints();
@@ -63,7 +69,6 @@ public class PointLandmarkVisualizer : MonoBehaviour
         
         for (int i = 0; i < Landmarks.Count; i++)
         {
-            
             landmarkObjects[i] = Instantiate(landmarkPrefab, trackedPose.transform);
             landmarkObjects[i].name = Landmarks[i];
             landmarks[i] = landmarkObjects[i].GetComponent<Landmark>();
@@ -115,6 +120,15 @@ public class PointLandmarkVisualizer : MonoBehaviour
         {
             name = "SavedPose";
         }
+        poseSimilarityComparer.StartComparer(savedPose);
+        StartCoroutine(UpdateSavedPointsAlpha());
+    }
+
+    private IEnumerator UpdateSavedPointsAlpha()
+    {
+        yield return null;
+        foreach (var point in savedPose.GetComponentsInChildren<Landmark>())
+            point.IsCopy();
     }
 
     void OnApplicationQuit()
