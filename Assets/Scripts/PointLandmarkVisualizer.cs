@@ -58,11 +58,12 @@ public class PointLandmarkVisualizer : MonoBehaviour
         {
             transform =
             {
-                parent = transform,
                 localPosition = Vector3.zero
             },
             name = "TrackedPose"
         };
+        
+        trackedPose.transform.SetParent(transform, false);
         
         landmarkObjects = new GameObject[Landmarks.Count];
         landmarks = new Landmark[Landmarks.Count];
@@ -117,9 +118,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
     {
         if(savedPose != null) Destroy(savedPose);
         savedPose = Instantiate(trackedPose, transform);
-        {
-            name = "SavedPose";
-        }
+        savedPose.name = "SavedPose";
         poseSimilarityComparer.StartComparer(savedPose);
         StartCoroutine(UpdateSavedPointsAlpha());
     }
