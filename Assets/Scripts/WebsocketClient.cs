@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine;
 using WebSocketSharp;
 using static BodyLandmarks;
+using Enum = System.Enum;
+
 public class WebsocketClient : MonoBehaviour
 {
     [SerializeField] private string port = "80";
@@ -70,12 +72,16 @@ public class WebsocketClient : MonoBehaviour
 
     private void InitialLog()
     {
-        var pointCount = new []{Convert.ToSingle(Landmarks.Count)};
+        var pointCount = new []{Convert.ToSingle(Enum.GetValues(typeof(PoseLandmarks)).Length)};
         SendMessage(pointCount);
 
-        foreach (var pair in LandmarkPairs)
+        foreach (var point in PoseLandmarkPairs)
         {
-            SendMessage(new [] {pair.X, pair.Y});
+            foreach (var pair in PoseLandmarkPairs[point.Key])
+            {
+                SendMessage(new [] {(float)point.Key, (float)pair});
+            }
+            
         }
     }
 

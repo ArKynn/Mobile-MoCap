@@ -32,12 +32,6 @@ public class UIController : MonoBehaviour
         settingsMenu?.SetActive(!settingsMenu.activeSelf);
     }
 
-    public void ModifySmoothingButton(int modifier)
-    {
-        visualizer?.ModifySmoothingPoints(modifier);
-        smoothingCounter.text = visualizer?.VisualizerSmoothingPoints.ToString();
-    }
-
     public void StartPoseSave()
     {
         isPoseSaving = true;
@@ -53,12 +47,10 @@ public class UIController : MonoBehaviour
         poseSaveTimerGraphic.text = poseSaveTimer.ToString("0.00");
         if (poseSaveTimer > 0) return;
         
+        isPoseSaving = false;
         poseSaveTimerGraphic.GameObject().transform.parent.GameObject().SetActive(false);
         poseSimilarityObject.SetActive(true);
         visualizer.SaveCurrentPose();
-        
-        isPoseSaving = false;
-        
     }
 
     public void UpdatePoseSimilarityScore(float score)

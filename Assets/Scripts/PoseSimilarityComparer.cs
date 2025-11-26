@@ -1,51 +1,59 @@
+using System.Collections.Generic;
 using UnityEngine;
+using static BodyLandmarks;
 
 public class PoseSimilarityComparer : MonoBehaviour
 {
     private PointLandmarkVisualizer visualizer;
     private UIController uiController;
-    private GameObject savedPose;
-    private GameObject detectedPose;
+    private Pose savedPose;
+    private Pose detectedPose;
     private float poseSimilarityScore;
 
     private Vector3[] savedPoseLineDirections;
     private Vector3[] detectedPoseLineDirections;
     
-    public void StartComparer(GameObject savedPose)
+    public void StartComparer(Pose savedPose)
     {
         this.savedPose = savedPose;
         detectedPose = visualizer.TrackedPose;
-        GetPoseLineDirections(savedPose, savedPoseLineDirections);
+        GetPoseLineDirections(this.savedPose, out savedPoseLineDirections);
     }
 
     private void Start()
     {
         visualizer = GetComponent<PointLandmarkVisualizer>();
         uiController = FindFirstObjectByType<UIController>();
-        savedPoseLineDirections = new Vector3[BodyLandmarks.LandmarkPairs.Count];
-        detectedPoseLineDirections = new Vector3[BodyLandmarks.LandmarkPairs.Count];
+        savedPoseLineDirections = new Vector3[PoseLandmarkPairs.Count];
+        detectedPoseLineDirections = new Vector3[PoseLandmarkPairs.Count];
     }
 
     private void Update()
     {
         if (savedPose != null && detectedPose != null)
         {
-            GetPoseLineDirections(detectedPose, detectedPoseLineDirections);
+            GetPoseLineDirections(detectedPose, out detectedPoseLineDirections);
             CalculatePoseSimilarity();
             uiController.UpdatePoseSimilarityScore(poseSimilarityScore);
         }
     }
 
-    private void GetPoseLineDirections(GameObject pose, Vector3[] lineDirections)
+    private void GetPoseLineDirections(Pose pose, out Vector3[] lineDirections)
     {
-        var points = pose.transform.GetComponentsInChildren<Transform>();
+        var lineDirectionsList = new List<Vector3>();
         
-        for (int i = 0; i < BodyLandmarks.LandmarkPairs.Count; i++)
+        for (int i = 0; i < pose.Landmarks.Length; i++)
         {
-            var point1 = points[(int)BodyLandmarks.LandmarkPairs[i].X];
-            var point2 = points[(int)BodyLandmarks.LandmarkPairs[i].Y];
-            lineDirections[i] = new Vector3(point2.position.x - point1.position.x, point2.position.y - point1.position.y, point2.position.z - point1.position.z);
+            var pairs = pose.Landmarks[i].GetNext();
+            for (int j = 0; j < pairs.Length; j++)
+            {
+                var point1 = pose.Landmarks[i].transform.position;;
+                var point2 = pairs[j].transform.position;;
+                lineDirectionsList[i] = new Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z);
+            }
         }
+        
+        lineDirections = lineDirectionsList.ToArray();
     }
 
     private void CalculatePoseSimilarity()

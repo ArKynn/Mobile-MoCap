@@ -1,15 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using Mediapipe.BlazePose;
 using UnityEngine.UI;
 using static BodyLandmarks;
+using Enum = System.Enum;
 
 public class PointLandmarkVisualizer : MonoBehaviour
 {
     [SerializeField] private int visualizerSmoothingPoints = 1;
-    [SerializeField] private int maxVisualizerSmoothingPoints = 10;
     [SerializeField] private GameObject landmarkPrefab;
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private RawImage _image;
@@ -17,22 +16,10 @@ public class PointLandmarkVisualizer : MonoBehaviour
     private PoseSimilarityComparer poseSimilarityComparer;
     WebCamInput webCamInput;
     BlazePoseDetecter detecter;
-    GameObject[] landmarkObjects;
-    Landmark[] landmarks;
-    private GameObject trackedPose;
-    private GameObject savedPose;
+    private Pose trackedPose;
+    private Pose savedPose;
 
-    public GameObject TrackedPose => trackedPose;
-    
-    public int VisualizerSmoothingPoints
-    {
-        get => visualizerSmoothingPoints;
-        private set
-        {
-            visualizerSmoothingPoints = value;
-            UpdateSmoothing();
-        }
-    }
+    public Pose TrackedPose => trackedPose;
     
     private readonly bool useWorldCoords = true;
 
@@ -42,92 +29,47 @@ public class PointLandmarkVisualizer : MonoBehaviour
         poseSimilarityComparer = GetComponent<PoseSimilarityComparer>();
         webCamInput = FindFirstObjectByType<WebCamInput>();
         detecter = new BlazePoseDetecter();
-        InitializePoints();
+        InitializePose(out trackedPose, "Tracked Pose");
     }
 
     void LateUpdate(){
         // Predict pose by neural network model.
         detecter.ProcessImage(_image, webCamInput.inputRT, -webCamInput.WebCamTexture.videoRotationAngle);
-
-        UpdatePoints(useWorldCoords);
+        trackedPose.UpdatePoints();
     }
 
-    void InitializePoints()
+    void InitializePose(out Pose poseToInitialize, string gameObjectName)
     {
-        trackedPose = new GameObject
+        var trackedPoseObject = new GameObject
         {
             transform =
             {
                 localPosition = Vector3.zero
             },
-            name = "TrackedPose"
+            name = gameObjectName
         };
-        
-        trackedPose.transform.SetParent(transform, false);
-        
-        landmarkObjects = new GameObject[Landmarks.Count];
-        landmarks = new Landmark[Landmarks.Count];
-        
-        for (int i = 0; i < Landmarks.Count; i++)
-        {
-            landmarkObjects[i] = Instantiate(landmarkPrefab, trackedPose.transform);
-            landmarkObjects[i].name = Landmarks[i];
-            landmarks[i] = landmarkObjects[i].GetComponent<Landmark>();
-            landmarks[i].SetLineRendererPrefab(lineRendererPrefab);
-            landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
-        }
-
-        for (int i = 0; i < LandmarkPairs.Count; i++)
-        {
-            landmarks[(int) LandmarkPairs[i].X].SetNext(landmarks[(int) LandmarkPairs[i].Y]);
-        }
+        poseToInitialize = trackedPoseObject.AddComponent<Pose>();
+        poseToInitialize.transform.SetParent(transform, false);
+        poseToInitialize.Init(landmarkPrefab, lineRendererPrefab, visualizerSmoothingPoints, detecter: detecter);
     }
+    
 
-    void UpdatePoints(bool useWorldPosition)
+    public IEnumerable<float[]> GetLandmarkPointData(Pose pose = null)
     {
-        for (int i = 0; i < landmarkObjects.Length; i++)
-        {
-            landmarks[i].UpdateValues(useWorldPosition ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i));
-        }
-    }
-
-    public IEnumerable<float[]> GetLandmarkPointData()
-    {
-        for (int i = 0; i < landmarkObjects.Length; i++)
+        pose ??= trackedPose;
+        for (int i = 0; i < pose.Landmarks.Length; i++)
         {
             var temp = useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i);
             yield return new []{temp[0], temp[1], temp[2], temp[3]};
         }
     }
 
-    public void ModifySmoothingPoints(int modifier)
-    {
-        if(VisualizerSmoothingPoints + modifier < 0 || VisualizerSmoothingPoints + modifier > maxVisualizerSmoothingPoints) return;
-        VisualizerSmoothingPoints += modifier;
-    }
-
-    private void UpdateSmoothing()
-    {
-        for (int i = 0; i < Landmarks.Count; i++)
-        {
-            landmarks[i].InitializeSmoothing(visualizerSmoothingPoints);
-        }
-    }
-
     public void SaveCurrentPose()
     {
         if(savedPose != null) Destroy(savedPose);
-        savedPose = Instantiate(trackedPose, transform);
-        savedPose.name = "SavedPose";
-        poseSimilarityComparer.StartComparer(savedPose);
-        StartCoroutine(UpdateSavedPointsAlpha());
-    }
-
-    private IEnumerator UpdateSavedPointsAlpha()
-    {
-        yield return null;
-        foreach (var point in savedPose.GetComponentsInChildren<Landmark>())
-            point.IsCopy();
+        InitializePose(out savedPose, "Saved Pose");
+        savedPose.UpdatePoints();
+        //poseSimilarityComparer.StartComparer(savedPose);
     }
 
     void OnApplicationQuit()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static BodyLandmarks;
 
 public class Landmark : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class Landmark : MonoBehaviour
     private GameObject lineRendererPrefab;
     public Material material { get; private set; }
     public float visibilityScore {get; private set;}
+    public PoseLandmarks poseLandmark;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -23,17 +25,6 @@ public class Landmark : MonoBehaviour
         material = GetComponent<MeshRenderer>().material;
         nextPoints = new List<Landmark>();
         lineRenderers = new List<LineRenderer>();
-    }
-
-    void LateUpdate()
-    {
-        for (int i = 0; i < nextPoints.Count; i++)
-        {
-            lineRenderers[i].SetPosition(0, transform.position);
-            lineRenderers[i].SetPosition(1, nextPoints[i] ? nextPoints[i].transform.position : transform.position);
-            lineRenderers[i].startColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, visibilityScore);
-            lineRenderers[i].endColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, nextPoints[i].visibilityScore);
-        }
     }
 
     public void UpdateValues(Vector4 landmarkInfo)
@@ -44,7 +35,6 @@ public class Landmark : MonoBehaviour
             UpdatePointSmooth();
         }
         else UpdatePoint(landmarkInfo);
-        
         material.color = Color32.Lerp(blockedViewColor, inViewColor, visibilityScore);
     }
 
@@ -80,6 +70,17 @@ public class Landmark : MonoBehaviour
         UpdatePositionVectorNanCheck(landmarkInfo);
     }
 
+    public void UpdateLineRenderers()
+    {
+        for (int i = 0; i < nextPoints.Count; i++)
+        {
+            lineRenderers[i].SetPosition(0, transform.position);
+            lineRenderers[i].SetPosition(1, nextPoints[i] ? nextPoints[i].transform.position : transform.position);
+            lineRenderers[i].startColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, visibilityScore);
+            lineRenderers[i].endColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, nextPoints[i].visibilityScore);
+        }
+    }
+
     private void UpdatePositionVectorNanCheck(Vector3 position)
     {
         if(!float.IsNaN(position.x) && !float.IsNaN(position.y) && !float.IsNaN(position.z)) transform.localPosition = position;
@@ -96,15 +97,13 @@ public class Landmark : MonoBehaviour
         lineRenderers.Add(Instantiate(lineRendererPrefab, transform).GetComponent<LineRenderer>());
     }
 
+    public Landmark[] GetNext()
+    {
+        return nextPoints.ToArray();
+    }
+
     public void SetLineRendererPrefab(GameObject prefab)
     {
         lineRendererPrefab = prefab;
-    }
-
-    public void IsCopy()
-    {
-        inViewColor.a *= Convert.ToByte(inViewColor.a * copyAlphaModifier);
-        inViewLineColor.a = Convert.ToByte(inViewLineColor.a * copyAlphaModifier);
-        UpdateValues(new Vector4(transform.position.x, transform.position.y, transform.position.z, visibilityScore));
     }
 }
