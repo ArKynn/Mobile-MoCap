@@ -5,7 +5,7 @@ import os
 import datetime
 import struct
 
-filePath = os.path.join(os.path.join(os.path.abspath(os.getcwd()),"logs") , str(datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S").__add__(".txt")))
+filePath = os.path.join(os.path.join(os.path.abspath(os.getcwd()),"logs") , str(datetime.datetime.now().strftime("%d_%m_%Y-%H_%M_%S").__add__(".txt")))
 print(filePath)
 
 hostname = socket.gethostname()

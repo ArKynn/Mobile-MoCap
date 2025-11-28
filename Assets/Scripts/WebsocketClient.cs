@@ -75,11 +75,12 @@ public class WebsocketClient : MonoBehaviour
         var pointCount = new []{Convert.ToSingle(Enum.GetValues(typeof(PoseLandmark)).Length)};
         SendMessage(pointCount);
 
-        foreach (var point in PoseLandmarkPairs)
+        foreach (var point in PoseLandmarkPairs.Keys)
         {
-            foreach (var pair in PoseLandmarkPairs[point.Key])
+            if(PoseLandmarkPairs[point] == null) continue;
+            foreach (var pair in PoseLandmarkPairs[point])
             {
-                SendMessage(new [] {(float)point.Key, (float)pair});
+                SendMessage(new [] {(float)point, (float)pair});
             }
             
         }
