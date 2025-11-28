@@ -6,13 +6,15 @@ using Enum = System.Enum;
 public class Pose : MonoBehaviour
     {
         public Landmark[] Landmarks {get; private set;}
+        public PoseLandmark[] PoseLandmarks {get; private set;}
         private BlazePoseDetecter _detecter;
 
-        public void Init(GameObject landmarkPrefab, GameObject lineRendererPrefab, int visualizerSmoothingPointCount = 1, PoseLandmarks[] poseParts = null, BlazePoseDetecter detecter = null)
+        public void Init(GameObject landmarkPrefab, GameObject lineRendererPrefab, int visualizerSmoothingPointCount = 1, PoseLandmark[] poseParts = null, BlazePoseDetecter detecter = null)
         {
             if(detecter != null) _detecter = detecter;
-            poseParts ??= Enum.GetValues(typeof(PoseLandmarks)) as PoseLandmarks[];
-            var pointCount = poseParts.Length;
+            poseParts ??= Enum.GetValues(typeof(PoseLandmark)) as PoseLandmark[];
+            PoseLandmarks = poseParts;
+            var pointCount = poseParts!.Length;
             
             Landmarks = new Landmark[pointCount];
         

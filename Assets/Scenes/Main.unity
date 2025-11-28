@@ -1883,7 +1883,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIController
   settingsMenu: {fileID: 150307753}
-  smoothingCounter: {fileID: 0}
   poseSaveTimerGraphic: {fileID: 947958159}
   poseSaveTimerStart: 10
   poseSimilarityObject: {fileID: 750455827}
@@ -2409,6 +2408,7 @@ GameObject:
   - component: {fileID: 1222800828}
   - component: {fileID: 1222800829}
   - component: {fileID: 1222800830}
+  - component: {fileID: 1222800831}
   m_Layer: 0
   m_Name: Visuallizer
   m_TagString: Untagged
@@ -2459,6 +2459,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 550af90a282c06e4c96113ee4c2a8567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoseSimilarityComparer
+--- !u!114 &1222800831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222800826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 641781e74a31bc94aa13291233ed1121, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoseSaver
+  landmarksToSave: 0b0000000d0000000f000000110000001300000015000000
 --- !u!1 &1341568647
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,39 +17,47 @@ public class PoseSimilarityComparer : MonoBehaviour
     {
         this.savedPose = savedPose;
         detectedPose = visualizer.TrackedPose;
-        GetPoseLineDirections(this.savedPose, out savedPoseLineDirections);
+        GetPoseLineDirections(this.savedPose, out savedPoseLineDirections, savedPose.PoseLandmarks);
     }
 
     private void Start()
     {
         visualizer = GetComponent<PointLandmarkVisualizer>();
         uiController = FindFirstObjectByType<UIController>();
-        savedPoseLineDirections = new Vector3[PoseLandmarkPairs.Count];
-        detectedPoseLineDirections = new Vector3[PoseLandmarkPairs.Count];
     }
 
     private void Update()
     {
         if (savedPose != null && detectedPose != null)
         {
-            GetPoseLineDirections(detectedPose, out detectedPoseLineDirections);
+            GetPoseLineDirections(detectedPose, out detectedPoseLineDirections, savedPose.PoseLandmarks);
             CalculatePoseSimilarity();
             uiController.UpdatePoseSimilarityScore(poseSimilarityScore);
         }
     }
 
-    private void GetPoseLineDirections(Pose pose, out Vector3[] lineDirections)
+    private void GetPoseLineDirections(Pose pose, out Vector3[] lineDirections, PoseLandmark[] constrictingLandmarks)
     {
         var lineDirectionsList = new List<Vector3>();
         
         for (int i = 0; i < pose.Landmarks.Length; i++)
         {
-            var pairs = pose.Landmarks[i].GetNext();
-            for (int j = 0; j < pairs.Length; j++)
+            for (int j = 0; j < constrictingLandmarks.Length; j++)
             {
-                var point1 = pose.Landmarks[i].transform.position;;
-                var point2 = pairs[j].transform.position;;
-                lineDirectionsList[i] = new Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z);
+                if (pose.Landmarks[i].poseLandmark != constrictingLandmarks[j]) continue;
+                
+                var pairs = pose.Landmarks[i].GetNext();
+                for (int k = 0; k < pairs.Length; k++)
+                {
+                    foreach (var landmark in constrictingLandmarks)
+                    {
+                        if (pairs[k].poseLandmark != landmark) continue;
+                            
+                        var point1 = pose.Landmarks[i].transform.position;;
+                        var point2 = pairs[k].transform.position;;
+                        lineDirectionsList.Add(new Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z));
+                    }
+                }
             }
         }
         
@@ -58,6 +66,7 @@ public class PoseSimilarityComparer : MonoBehaviour
 
     private void CalculatePoseSimilarity()
     {
+        poseSimilarityScore = 0;
         for (int i = 0; i < savedPoseLineDirections.Length; i++)
         {
             poseSimilarityScore += CosineSimilarity(savedPoseLineDirections[i] ,detectedPoseLineDirections[i]);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using static BodyLandmarks;
 
 public class Landmark : MonoBehaviour
@@ -9,7 +10,6 @@ public class Landmark : MonoBehaviour
     [SerializeField] private Color32 blockedViewColor = Color.red;
     [SerializeField] private Color32 inViewLineColor = Color.green;
     [SerializeField] private Color32 blockedViewLineColor = Color.red;
-    [SerializeField] private float copyAlphaModifier = 0.25f;
 
     private List<Landmark> nextPoints;
     private List<LineRenderer> lineRenderers;
@@ -17,7 +17,7 @@ public class Landmark : MonoBehaviour
     private GameObject lineRendererPrefab;
     public Material material { get; private set; }
     public float visibilityScore {get; private set;}
-    public PoseLandmarks poseLandmark;
+    public PoseLandmark poseLandmark;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()

@@ -6,19 +6,18 @@ public class UIController : MonoBehaviour
 {
 
     [SerializeField] private GameObject settingsMenu;
-    [SerializeField] private TMP_Text smoothingCounter;
     [SerializeField] private TMP_Text poseSaveTimerGraphic;
     [SerializeField] private float poseSaveTimerStart;
     [SerializeField] private GameObject poseSimilarityObject;
     [SerializeField] private TMP_Text poseSimilarityText;
     
-    private PointLandmarkVisualizer visualizer;
+    private PoseSaver poseSaver;
     private float poseSaveTimer;
     private bool isPoseSaving;
 
     private void Start()
     {
-        visualizer = FindFirstObjectByType<PointLandmarkVisualizer>();
+        poseSaver = FindFirstObjectByType<PoseSaver>();
     }
 
     private void Update()
@@ -50,7 +49,7 @@ public class UIController : MonoBehaviour
         isPoseSaving = false;
         poseSaveTimerGraphic.GameObject().transform.parent.GameObject().SetActive(false);
         poseSimilarityObject.SetActive(true);
-        visualizer.SaveCurrentPose();
+        poseSaver.SaveCurrentPose();
     }
 
     public void UpdatePoseSimilarityScore(float score)

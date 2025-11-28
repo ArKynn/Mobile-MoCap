@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Numerics;
-using static BodyLandmarks.PoseLandmarks;
+using System.Linq;
+using static BodyLandmarks.PoseLandmark;
 
 public static class BodyLandmarks
 {
     // All body landmarks detected by Neural Network model
     // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
     
-    public enum PoseLandmarks
+    public enum PoseLandmark
     {
         Nose,
         LeftEyeInner,
@@ -46,8 +46,8 @@ public static class BodyLandmarks
     
     // Landmark connections
     // Defined by the figure in https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker.
-    public static readonly Dictionary<PoseLandmarks, PoseLandmarks[]> PoseLandmarkPairs =
-        new Dictionary<PoseLandmarks, PoseLandmarks[]>
+    public static readonly Dictionary<PoseLandmark, PoseLandmark[]> PoseLandmarkPairs =
+        new()
         {
             { Nose, new[] { LeftEyeInner, RightEyeInner } },
             { LeftEyeInner, new[] { LeftEyeCenter } },
@@ -83,4 +83,10 @@ public static class BodyLandmarks
             { LeftFootIndex, new[] { LeftAnkle } },
             { RightFootIndex, new[] { RightAnkle } }
         };
+    
+    public static PoseLandmark[] SortPoseLandmarks(PoseLandmark[] poseLandmarks)
+    {
+        var landmarksList = poseLandmarks.ToList();
+        return landmarksList.OrderBy(o => (int)o).ToArray();
+    }
 }

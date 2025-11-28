@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mediapipe.BlazePose;
 using UnityEngine.UI;
 using static BodyLandmarks;
-using Enum = System.Enum;
 
 public class PointLandmarkVisualizer : MonoBehaviour
 {
@@ -13,20 +11,18 @@ public class PointLandmarkVisualizer : MonoBehaviour
     [SerializeField] private GameObject lineRendererPrefab;
     [SerializeField] private RawImage _image;
 
-    private PoseSimilarityComparer poseSimilarityComparer;
     WebCamInput webCamInput;
     BlazePoseDetecter detecter;
     private Pose trackedPose;
-    private Pose savedPose;
 
     public Pose TrackedPose => trackedPose;
     
     private readonly bool useWorldCoords = true;
 
     public BlazePoseDetecter Detecter => detecter;
+    public int VisualizerSmoothingPoints => visualizerSmoothingPoints;
     void Start()
     {
-        poseSimilarityComparer = GetComponent<PoseSimilarityComparer>();
         webCamInput = FindFirstObjectByType<WebCamInput>();
         detecter = new BlazePoseDetecter();
         InitializePose(out trackedPose, "Tracked Pose");
@@ -38,7 +34,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
         trackedPose.UpdatePoints();
     }
 
-    void InitializePose(out Pose poseToInitialize, string gameObjectName)
+    public void InitializePose(out Pose poseToInitialize, string gameObjectName, PoseLandmark[] toSave = null)
     {
         var trackedPoseObject = new GameObject
         {
@@ -50,7 +46,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
         };
         poseToInitialize = trackedPoseObject.AddComponent<Pose>();
         poseToInitialize.transform.SetParent(transform, false);
-        poseToInitialize.Init(landmarkPrefab, lineRendererPrefab, visualizerSmoothingPoints, detecter: detecter);
+        poseToInitialize.Init(landmarkPrefab, lineRendererPrefab, visualizerSmoothingPoints, detecter: detecter, poseParts: toSave);
     }
     
 
@@ -62,14 +58,6 @@ public class PointLandmarkVisualizer : MonoBehaviour
             var temp = useWorldCoords ? detecter.GetPoseWorldLandmark(i) : detecter.GetPoseLandmark(i);
             yield return new []{temp[0], temp[1], temp[2], temp[3]};
         }
-    }
-
-    public void SaveCurrentPose()
-    {
-        if(savedPose != null) Destroy(savedPose);
-        InitializePose(out savedPose, "Saved Pose");
-        savedPose.UpdatePoints();
-        //poseSimilarityComparer.StartComparer(savedPose);
     }
 
     void OnApplicationQuit()

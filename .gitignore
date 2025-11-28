@@ -103,3 +103,6 @@ InitTestScene*.unity*
 
 #Local server created logs
 /Local Server/Logs
+
+#Unity Editor generated pose files
+/[Aa]ssets/SavedPoses
