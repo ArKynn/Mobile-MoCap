@@ -16,6 +16,7 @@ public class WebsocketClient : MonoBehaviour
     private string IP;
     private float startTime;
     private float frameCount = -1;
+    private bool startServerLog;
     
     // Update is called once per frame
     private void Start()
@@ -25,7 +26,7 @@ public class WebsocketClient : MonoBehaviour
     
     void Update()
     {
-        ConvertAndSendMessage();
+        if(startServerLog) ConvertAndSendMessage();
     }
 
     private void ConvertAndSendMessage()
@@ -42,9 +43,9 @@ public class WebsocketClient : MonoBehaviour
         }
     }
 
-    public void InitWebsocketClient()
+    public bool InitWebsocketClient()
     {
-        if(ws is not null && !ws.IsAlive) return;
+        if(ws is not null && !ws.IsAlive) return false;
         try
         {
             IP = inputField.text;
@@ -54,13 +55,16 @@ public class WebsocketClient : MonoBehaviour
             ws = new WebSocket(serverUrl);
             ws.OnOpen += OnServerOpen;
             ws.Connect();
+            if (ws.IsAlive) return ws.IsAlive;
+            
+            ws = null;
+            return false;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            return false;
         }
-        
     }
 
     private void OnServerOpen(object sender, EventArgs e)
@@ -91,6 +95,11 @@ public class WebsocketClient : MonoBehaviour
         var serverMessage = new byte[messageToSend.Length * sizeof(float)];
         Buffer.BlockCopy(messageToSend, 0, serverMessage, 0, serverMessage.Length);
         ws.Send(serverMessage);
+    }
+
+    public void StartServerLog()
+    {
+        startServerLog = true;
     }
     
     private void OnApplicationQuit()
