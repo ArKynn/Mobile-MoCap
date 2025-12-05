@@ -9,9 +9,10 @@ public class PoseSimilarityComparer : MonoBehaviour
     private Pose savedPose;
     private Pose detectedPose;
     private float poseSimilarityScore;
-
-    private Vector3[] savedPoseLineDirections;
+    
     private Vector3[] detectedPoseLineDirections;
+    private Vector3[] savedPoseLineDirections;
+    private float[] individualPoseSilimiarityScores;
     
     public void StartComparer(Pose savedPose)
     {
@@ -32,6 +33,7 @@ public class PoseSimilarityComparer : MonoBehaviour
         {
             GetPoseLineDirections(detectedPose, out detectedPoseLineDirections, savedPose.PoseLandmarks);
             CalculatePoseSimilarity();
+            DisplayIndividualSimilarityScores();
             uiController.UpdatePoseSimilarityScore(poseSimilarityScore);
         }
     }
@@ -64,12 +66,24 @@ public class PoseSimilarityComparer : MonoBehaviour
         lineDirections = lineDirectionsList.ToArray();
     }
 
+    private void DisplayIndividualSimilarityScores()
+    {
+        for (int i = 0; i < savedPose.Landmarks.Length; i++)
+        {
+            for (int j = 0; j < savedPose.Landmarks[i].GetNext().Length; j++)
+            {
+                savedPose.Landmarks[i].UpdateSingleLineRenderer(j, individualPoseSilimiarityScores[i]);
+            }
+        }
+    }
+
     private void CalculatePoseSimilarity()
     {
+        individualPoseSilimiarityScores = new float[savedPoseLineDirections.Length];
         poseSimilarityScore = 0;
         for (int i = 0; i < savedPoseLineDirections.Length; i++)
         {
-            poseSimilarityScore += CosineSimilarity(savedPoseLineDirections[i] ,detectedPoseLineDirections[i]);
+            poseSimilarityScore += individualPoseSilimiarityScores[i] = CosineSimilarity(savedPoseLineDirections[i], detectedPoseLineDirections[i]);
         }
         
         poseSimilarityScore /= savedPoseLineDirections.Length;

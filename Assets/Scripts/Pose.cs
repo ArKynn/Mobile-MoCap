@@ -13,6 +13,7 @@ public class Pose : MonoBehaviour
         {
             if(detecter != null) _detecter = detecter;
             poseParts ??= Enum.GetValues(typeof(PoseLandmark)) as PoseLandmark[];
+            if(poseParts.Length == 0) poseParts = Enum.GetValues(typeof(PoseLandmark)) as PoseLandmark[];
             PoseLandmarks = poseParts;
             var pointCount = poseParts!.Length;
             

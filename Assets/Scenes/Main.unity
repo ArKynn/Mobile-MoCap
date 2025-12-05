@@ -2632,7 +2632,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PoseSaver
   editorWritePoseToFile: 0
-  landmarksToSave: 0b0000000d0000000f000000110000001300000015000000
+  landmarksToSave: 
 --- !u!1 &1341568647
 GameObject:
   m_ObjectHideFlags: 0

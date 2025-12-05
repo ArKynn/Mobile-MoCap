@@ -81,6 +81,12 @@ public class Landmark : MonoBehaviour
         }
     }
 
+    public void UpdateSingleLineRenderer(int index, float score)
+    {
+        lineRenderers[index].startColor = Color32.Lerp(Color.red, Color.green, score);
+        lineRenderers[index].endColor = Color32.Lerp(Color.red, Color.green, score);
+    }
+
     private void UpdatePositionVectorNanCheck(Vector3 position)
     {
         if(!float.IsNaN(position.x) && !float.IsNaN(position.y) && !float.IsNaN(position.z)) transform.localPosition = position;
