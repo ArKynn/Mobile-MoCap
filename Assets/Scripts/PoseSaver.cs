@@ -30,7 +30,7 @@ public class PoseSaver : MonoBehaviour
         pointVisualizer.InitializePose(out uiController.savedPose, out var temp, "Saved Pose", landmarksToSave.ToArray());
         if(editorWritePoseToFile) SavePoseToFile(temp);
 #else
-        pointVisualizer.InitializePose(out var temp, "Saved Pose");
+        pointVisualizer.InitializePose(out uiController.savedPose, out var temp, "Saved Pose");
 #endif
         savedPose = temp;
         savedPose.UpdatePoints();
