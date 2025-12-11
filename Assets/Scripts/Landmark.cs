@@ -11,7 +11,7 @@ public class Landmark : MonoBehaviour
     [SerializeField] private Color32 inViewLineColor = Color.green;
     [SerializeField] private Color32 blockedViewLineColor = Color.red;
 
-    private List<Landmark> nextPoints;
+    private List<Landmark> pairPoints;
     private List<LineRenderer> lineRenderers;
     private List<Vector4> smoothingPoints;
     private GameObject lineRendererPrefab;
@@ -23,7 +23,7 @@ public class Landmark : MonoBehaviour
     void Awake()
     {
         material = GetComponent<MeshRenderer>().material;
-        nextPoints = new List<Landmark>();
+        pairPoints = new List<Landmark>();
         lineRenderers = new List<LineRenderer>();
     }
 
@@ -72,17 +72,18 @@ public class Landmark : MonoBehaviour
 
     public void UpdateLineRenderers()
     {
-        for (int i = 0; i < nextPoints.Count; i++)
+        for (int i = 0; i < pairPoints.Count; i++)
         {
             lineRenderers[i].SetPosition(0, transform.position);
-            lineRenderers[i].SetPosition(1, nextPoints[i] ? nextPoints[i].transform.position : transform.position);
+            lineRenderers[i].SetPosition(1, pairPoints[i] ? pairPoints[i].transform.position : transform.position);
             lineRenderers[i].startColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, visibilityScore);
-            lineRenderers[i].endColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, nextPoints[i].visibilityScore);
+            lineRenderers[i].endColor = Color32.Lerp(blockedViewLineColor, inViewLineColor, pairPoints[i].visibilityScore);
         }
     }
 
     public void UpdateSingleLineRenderer(int index, float score)
     {
+        score = Mathf.Pow((score + 1) / 2, 3); 
         lineRenderers[index].startColor = Color32.Lerp(Color.red, Color.green, score);
         lineRenderers[index].endColor = Color32.Lerp(Color.red, Color.green, score);
     }
@@ -99,13 +100,13 @@ public class Landmark : MonoBehaviour
 
     public void SetNext(Landmark next)
     {
-        nextPoints.Add(next);
+        pairPoints.Add(next);
         lineRenderers.Add(Instantiate(lineRendererPrefab, transform).GetComponent<LineRenderer>());
     }
 
-    public Landmark[] GetNext()
+    public Landmark[] GetPairs()
     {
-        return nextPoints.ToArray();
+        return pairPoints.ToArray();
     }
 
     public void SetLineRendererPrefab(GameObject prefab)

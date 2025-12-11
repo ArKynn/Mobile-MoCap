@@ -14,6 +14,7 @@ public class PointLandmarkVisualizer : MonoBehaviour
     WebCamInput webCamInput;
     BlazePoseDetecter detecter;
     private Pose trackedPose;
+    private UIController uiController;
 
     public Pose TrackedPose => trackedPose;
     
@@ -25,7 +26,8 @@ public class PointLandmarkVisualizer : MonoBehaviour
     {
         webCamInput = FindFirstObjectByType<WebCamInput>();
         detecter = new BlazePoseDetecter();
-        InitializePose(out trackedPose, "Tracked Pose");
+        uiController = FindFirstObjectByType<UIController>();
+        InitializePose(out uiController.trackedPose, out trackedPose, "Tracked Pose");
     }
 
     void LateUpdate(){
@@ -34,9 +36,9 @@ public class PointLandmarkVisualizer : MonoBehaviour
         trackedPose.UpdatePoints();
     }
 
-    public void InitializePose(out Pose poseToInitialize, string gameObjectName, PoseLandmark[] toSave = null)
+    public void InitializePose(out GameObject trackedPoseObject, out Pose poseToInitialize, string gameObjectName, PoseLandmark[] toSave = null)
     {
-        var trackedPoseObject = new GameObject
+        trackedPoseObject = new GameObject
         {
             transform =
             {

@@ -48,7 +48,7 @@ public class PoseSimilarityComparer : MonoBehaviour
             {
                 if (pose.Landmarks[i].poseLandmark != constrictingLandmarks[j]) continue;
                 
-                var pairs = pose.Landmarks[i].GetNext();
+                var pairs = pose.Landmarks[i].GetPairs();
                 for (int k = 0; k < pairs.Length; k++)
                 {
                     foreach (var landmark in constrictingLandmarks)
@@ -68,11 +68,13 @@ public class PoseSimilarityComparer : MonoBehaviour
 
     private void DisplayIndividualSimilarityScores()
     {
+        int updatedscores = 0;
         for (int i = 0; i < savedPose.Landmarks.Length; i++)
         {
-            for (int j = 0; j < savedPose.Landmarks[i].GetNext().Length; j++)
+            for (int j = 0; j < savedPose.Landmarks[i].GetPairs().Length; j++)
             {
-                savedPose.Landmarks[i].UpdateSingleLineRenderer(j, individualPoseSilimiarityScores[i]);
+                savedPose.Landmarks[i].UpdateSingleLineRenderer(j, individualPoseSilimiarityScores[updatedscores]);
+                updatedscores++;
             }
         }
     }
@@ -83,7 +85,8 @@ public class PoseSimilarityComparer : MonoBehaviour
         poseSimilarityScore = 0;
         for (int i = 0; i < savedPoseLineDirections.Length; i++)
         {
-            poseSimilarityScore += individualPoseSilimiarityScores[i] = CosineSimilarity(savedPoseLineDirections[i], detectedPoseLineDirections[i]);
+            individualPoseSilimiarityScores[i] = CosineSimilarity(savedPoseLineDirections[i], detectedPoseLineDirections[i]);
+            poseSimilarityScore += individualPoseSilimiarityScores[i];
         }
         
         poseSimilarityScore /= savedPoseLineDirections.Length;

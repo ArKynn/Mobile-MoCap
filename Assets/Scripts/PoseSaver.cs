@@ -9,6 +9,7 @@ public class PoseSaver : MonoBehaviour
     [SerializeField] private bool editorWritePoseToFile;
     private PointLandmarkVisualizer pointVisualizer;
     private PoseSimilarityComparer poseSimilarityComparer;
+    private UIController uiController;
     
     public List<PoseLandmark> landmarksToSave = new ();
     public Pose savedPose {get; private set;}
@@ -18,6 +19,7 @@ public class PoseSaver : MonoBehaviour
     {
         pointVisualizer = GetComponent<PointLandmarkVisualizer>();
         poseSimilarityComparer = GetComponent<PoseSimilarityComparer>();
+        uiController = FindFirstObjectByType<UIController>();
     }
 
     public void SaveCurrentPose()
@@ -25,7 +27,7 @@ public class PoseSaver : MonoBehaviour
         if(savedPose != null) Destroy(savedPose);
 #if UNITY_EDITOR
         var landmarks = SortPoseLandmarks(landmarksToSave.ToArray());
-        pointVisualizer.InitializePose(out var temp, "Saved Pose", landmarksToSave.ToArray());
+        pointVisualizer.InitializePose(out uiController.savedPose, out var temp, "Saved Pose", landmarksToSave.ToArray());
         if(editorWritePoseToFile) SavePoseToFile(temp);
 #else
         pointVisualizer.InitializePose(out var temp, "Saved Pose");
@@ -35,6 +37,7 @@ public class PoseSaver : MonoBehaviour
         poseSimilarityComparer.StartComparer(savedPose);
     }
 
+#if UNITY_EDITOR
     private void SavePoseToFile(Pose poseToSave)
     {
         var saveObj = ScriptableObject.CreateInstance<SavedPose>();
@@ -43,4 +46,5 @@ public class PoseSaver : MonoBehaviour
         EditorUtility.SetDirty(saveObj);
         AssetDatabase.SaveAssets();
     }
+#endif
 }

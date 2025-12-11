@@ -20,6 +20,8 @@ public class UIController : MonoBehaviour
     private bool isPoseSaving;
     private float serverLogTimer;
     private bool startServerLogCountdown;
+    public GameObject savedPose;
+    public GameObject trackedPose;
 
     private void Start()
     {
@@ -43,6 +45,9 @@ public class UIController : MonoBehaviour
     {
         if(startServerLogCountdown) return;
         
+        if(savedPose != null)savedPose.SetActive(false);
+        trackedPose.SetActive(true);
+        
         isPoseSaving = true;
         poseSaveTimer = poseSaveTimerStart;
         ToggleSettings();
@@ -60,6 +65,8 @@ public class UIController : MonoBehaviour
         Timer.GameObject().transform.parent.GameObject().SetActive(false);
         poseSimilarityObject.SetActive(true);
         poseSaver.SaveCurrentPose();
+        trackedPose?.SetActive(false);
+        savedPose?.SetActive(true);
     }
 
     public void TryServerConnection()
@@ -91,6 +98,7 @@ public class UIController : MonoBehaviour
         Timer.text = serverLogTimer.ToString("0.00");
         if (serverLogTimer > 0) return;
         
+        Timer.GameObject().transform.parent.GameObject().SetActive(false);
         startServerLogCountdown = false;
         wsClient.StartServerLog();
     }
