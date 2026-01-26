@@ -63,13 +63,13 @@ Detailed documentation is available in `/Documention`:
 ## 🧪 Validation
 
 The system was experimentally compared against VICON motion capture for upper and lower limb movements at different orientations.  
-See `docs/09-vicon-validation.md`.
+See [Documentation/09-vicon-validation.md](Documentation/09-vicon-validation.md).
 
 ---
 
 ## 📡 Server Usage
 
-A Python WebSocket server is included to log landmark data. See `docs/08-python-server.md`.
+A Python WebSocket server is included to log landmark data. See [Documentation/08-python-server.md](Documentation/08-python-server.md).
 
 ---
 
